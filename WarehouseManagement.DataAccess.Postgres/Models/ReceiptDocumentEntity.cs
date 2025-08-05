@@ -9,7 +9,7 @@ public class ReceiptDocumentEntity
 
     public int Number { get; set; }
 
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
 
     public List<ReceiptResourceEntity> ReceiptResources { get; set; } = [];
 }

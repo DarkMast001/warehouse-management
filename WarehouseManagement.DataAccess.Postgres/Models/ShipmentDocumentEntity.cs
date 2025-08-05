@@ -15,7 +15,7 @@ public class ShipmentDocumentEntity
 
     public ClientEntity? Client { get; set; }
 
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
 
     public DocumentState DocumentState { get; set; } = DocumentState.NOT_SIGNED;
 

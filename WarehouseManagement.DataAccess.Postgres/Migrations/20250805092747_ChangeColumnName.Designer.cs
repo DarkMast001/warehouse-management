@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WarehouseManagement.DataAccess.Postgres;
@@ -11,9 +12,11 @@ using WarehouseManagement.DataAccess.Postgres;
 namespace WarehouseManagement.DataAccess.Postgres.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    partial class WarehouseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250805092747_ChangeColumnName")]
+    partial class ChangeColumnName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,8 +44,6 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                         .HasColumnName("ResourceID");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("ResourceId", "MeasureUnitId");
 
                     b.HasIndex("MeasureUnitId")
                         .IsUnique();
@@ -113,7 +114,7 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("ReceiptDocumentID");
 
-                    b.Property<DateOnly>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("date");
 
                     b.Property<int>("Number")
@@ -141,7 +142,7 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("ReceiptDocumentId")
+                    b.Property<Guid>("ReceiptDocumentId")
                         .HasColumnType("uuid")
                         .HasColumnName("ReceiptDocumentID");
 
@@ -195,7 +196,7 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("ClientID");
 
-                    b.Property<DateOnly>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("date");
 
                     b.Property<string>("DocumentState")
@@ -272,18 +273,19 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                     b.HasOne("WarehouseManagement.DataAccess.Postgres.Models.MeasureUnitEntity", "MeasureUnit")
                         .WithMany()
                         .HasForeignKey("MeasureUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WarehouseManagement.DataAccess.Postgres.Models.ReceiptDocumentEntity", "ReceiptDocument")
                         .WithMany("ReceiptResources")
                         .HasForeignKey("ReceiptDocumentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("WarehouseManagement.DataAccess.Postgres.Models.ResourceEntity", "Resource")
                         .WithMany()
                         .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("MeasureUnit");
@@ -309,13 +311,13 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                     b.HasOne("WarehouseManagement.DataAccess.Postgres.Models.MeasureUnitEntity", "MeasureUnit")
                         .WithMany()
                         .HasForeignKey("MeasureUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WarehouseManagement.DataAccess.Postgres.Models.ResourceEntity", "Resource")
                         .WithMany()
                         .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WarehouseManagement.DataAccess.Postgres.Models.ShipmentDocumentEntity", "ShipmentDocument")

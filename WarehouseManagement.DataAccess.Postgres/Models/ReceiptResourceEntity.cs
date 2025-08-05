@@ -17,7 +17,7 @@ public class ReceiptResourceEntity
 
     public int Quantity { get; set; }
 
-    public Guid ReceiptDocumentId { get; set; }
+    public Guid? ReceiptDocumentId { get; set; }
 
     public ReceiptDocumentEntity? ReceiptDocument { get; set; }
 }

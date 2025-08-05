@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WarehouseManagement.DataAccess.Postgres;
@@ -11,9 +12,11 @@ using WarehouseManagement.DataAccess.Postgres;
 namespace WarehouseManagement.DataAccess.Postgres.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    partial class WarehouseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250805160317_RemoveAlternativeKeyAtBalance")]
+    partial class RemoveAlternativeKeyAtBalance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,8 +44,6 @@ namespace WarehouseManagement.DataAccess.Postgres.Migrations
                         .HasColumnName("ResourceID");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("ResourceId", "MeasureUnitId");
 
                     b.HasIndex("MeasureUnitId")
                         .IsUnique();

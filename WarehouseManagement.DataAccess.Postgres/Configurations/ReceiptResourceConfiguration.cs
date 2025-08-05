@@ -15,15 +15,18 @@ public class ReceiptResourceConfiguration : IEntityTypeConfiguration<ReceiptReso
 
         builder.HasOne(rr => rr.Resource)
             .WithMany()
-            .HasForeignKey(rr => rr.ResourceId);
+            .HasForeignKey(rr => rr.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(rr => rr.MeasureUnit)
             .WithMany()
-            .HasForeignKey(rr => rr.MeasureUnitId);
+            .HasForeignKey(rr => rr.MeasureUnitId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(rr => rr.ReceiptDocument)
             .WithMany(rd => rd.ReceiptResources)
-            .HasForeignKey(rr => rr.ReceiptDocumentId);
+            .HasForeignKey(rr => rr.ReceiptDocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(rr => rr.ResourceId).HasColumnName("ResourceID");
         builder.Property(rr => rr.MeasureUnitId).HasColumnName("MeasureUnitID");

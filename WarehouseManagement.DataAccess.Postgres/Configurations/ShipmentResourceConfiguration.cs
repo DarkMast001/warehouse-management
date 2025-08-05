@@ -15,11 +15,13 @@ public class ShipmentResourceConfiguration : IEntityTypeConfiguration<ShipmentRe
 
         builder.HasOne(sr => sr.Resource)
             .WithMany()
-            .HasForeignKey(sr => sr.ResourceId);
+            .HasForeignKey(sr => sr.ResourceId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(sr => sr.MeasureUnit)
             .WithMany()
-            .HasForeignKey(sr => sr.MeasureUnitId);
+            .HasForeignKey(sr => sr.MeasureUnitId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(sr => sr.ShipmentDocument)
             .WithMany(sd => sd.ShipmentResources)

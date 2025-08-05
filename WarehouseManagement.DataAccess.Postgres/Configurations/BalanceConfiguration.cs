@@ -9,6 +9,7 @@ public class BalanceConfiguration : IEntityTypeConfiguration<BalanceEntity>
     public void Configure(EntityTypeBuilder<BalanceEntity> builder)
     {
         builder.ToTable("Balance").HasKey(b => b.Id);
+        builder.HasAlternateKey(b => new { b.ResourceId, b.MeasureUnitId });
         builder.Property(b => b.Id).HasColumnName("BalanceID");
 
         builder.HasOne(b => b.Resource)
