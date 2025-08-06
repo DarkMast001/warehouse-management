@@ -17,7 +17,7 @@ public class ShipmentResourceEntity
 
     public int Quantity { get; set; }
 
-    public Guid ShipmentDocumentId { get; set; }
+    public Guid? ShipmentDocumentId { get; set; }
 
     public ShipmentDocumentEntity? ShipmentDocument { get; set; }
 }

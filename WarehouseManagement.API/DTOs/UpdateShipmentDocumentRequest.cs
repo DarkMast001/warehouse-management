@@ -2,8 +2,9 @@
 
 namespace WarehouseManagement.API.DTOs;
 
-public record UpdateReceiptDocumentRequest(
-    [Required]
+public record UpdateShipmentDocumentRequest(
+    [Required] 
     [Range(1, int.MaxValue, ErrorMessage = "Number must be greater than 0.")] int NewNumber,
+    [Required] Guid NewClient,
     [Required] DateOnly NewDate,
-    [Required] List<Guid> NewReceiptResourceIds);
+    [Required] List<Guid> NewShipmentResourceIds);

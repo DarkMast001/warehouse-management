@@ -25,7 +25,8 @@ public class ShipmentResourceConfiguration : IEntityTypeConfiguration<ShipmentRe
 
         builder.HasOne(sr => sr.ShipmentDocument)
             .WithMany(sd => sd.ShipmentResources)
-            .HasForeignKey(sr => sr.ShipmentDocumentId);
+            .HasForeignKey(sr => sr.ShipmentDocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(sr => sr.ResourceId).HasColumnName("ResourceID");
         builder.Property(sr => sr.MeasureUnitId).HasColumnName("MeasureUnitID");
