@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+import Sidebar from './components/Sidebar/Sidebar';
 
+import ClientsList from './components/Items/Clients/ClientsList/ClientsList';
+import ClientDetails from './components/Items/Clients/ClientDetails/ClientDetails';
+import AddClient from './components/Items/Clients/AddClient/AddClient';
+import ArchivedClients from './components/Items/Clients/ArchivedClients/ArchivedClients';
+
+import ResourcesList from './components/Items/Resources/ResourcesList/ResourcesList';
+import AddResource from './components/Items/Resources/AddResource/AddResource';
+import ArchivedResources from './components/Items/Resources/ArchivedResources/ArchivedResources';
+import ResourceDetails from './components/Items/Resources/ResourceDetails/ResourceDetails';
+
+import MeasureUnitsList from './components/Items/MeasureUnits/MeasureUnitsList/MeasureUnitsList';
+import AddMeasureUnit from './components/Items/MeasureUnits/AddMeasureUnit/AddMeasureUnit';
+import ArchivedMeasureUnits from './components/Items/MeasureUnits/ArchivedMeasureUnits/ArchivedMeasureUnits';
+import MeasureUnitDetails from './components/Items/MeasureUnits/MeasureUnitDetails/MeasureUnitDetails';
+
+import './App.css';
+import './components/Items/CommonItemListStyle.css';
+import './components/Items/CommonItemDetailsStyle.css';
+import './components/Items/CommonItemArchivedStyle.css';
+import './components/Items/CommonItemAddStyle.css';
+
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="app">
+        <Sidebar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<ResourcesList />} />
+
+            <Route path="/clients" element={<ClientsList />} />
+            <Route path="/clients/new" element={<AddClient />} />
+            <Route path="/clients/archived" element={<ArchivedClients />} />
+            <Route path="/clients/:id" element={<ClientDetails />} />
+            
+            <Route path="/resources" element={<ResourcesList />} />
+            <Route path="/resources/new" element={<AddResource />} />
+            <Route path="/resources/archived" element={<ArchivedResources />} />
+            <Route path="/resources/:id" element={<ResourceDetails />} />
+
+            <Route path="/measureunits" element={<MeasureUnitsList />} />
+            <Route path="/measureunits/new" element={<AddMeasureUnit />} />
+            <Route path="/measureunits/archived" element={<ArchivedMeasureUnits />} />
+            <Route path="/measureunits/:id" element={<MeasureUnitDetails />} />
+          </Routes>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </Router>
   )
 }
-
-export default App
