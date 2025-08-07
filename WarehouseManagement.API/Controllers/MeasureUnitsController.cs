@@ -20,13 +20,34 @@ public class MeasureUnitsController : ControllerBase
         _dbContext = dbContext;
     }
 
-    [HttpGet]
-    public ActionResult GetMeasureUnits()
+    [HttpGet("active")]
+    public async Task<ActionResult> GetActiveMeasureUnits()
     {
-        return Ok(_dbContext.MeasureUnits);
+        var activeMeasureUnits = await _dbContext.MeasureUnits.Where(c => c.ArchivingState == ArchivingState.WORKING).ToListAsync();
+        return Ok(activeMeasureUnits);
     }
 
-    [HttpPost("create")]
+    [HttpGet("archived")]
+    public async Task<ActionResult> GetArchivedMeasureUnits()
+    {
+        var archivedMeasureUnits = await _dbContext.MeasureUnits.Where(c => c.ArchivingState == ArchivingState.ARCHIVE).ToListAsync();
+        return Ok(archivedMeasureUnits);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult> GetMeasureUnitById(Guid id)
+    {
+        var measureUnit = await _dbContext.MeasureUnits.FindAsync(id);
+
+        if (measureUnit == null)
+        {
+            return BadRequest($"Client with ID {id} not found.");
+        }
+
+        return Ok(measureUnit);
+    }
+
+    [HttpPost()]
     public async Task<ActionResult> CreateMeasureUnit([FromBody] CreateMeasureUnitRequest request)
     {
         if (!ModelState.IsValid)

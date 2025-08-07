@@ -20,13 +20,34 @@ public class ClientsController : ControllerBase
         _dbContext = dbContext;
     }
 
-    [HttpGet]
-    public ActionResult GetClients()
+    [HttpGet("active")]
+    public async Task<ActionResult> GetActiveClients()
     {
-        return Ok(_dbContext.Clients);
+        var activeClients = await _dbContext.Clients.Where(c => c.ArchivingState == ArchivingState.WORKING).ToListAsync();
+        return Ok(activeClients);
     }
 
-    [HttpPost("create")]
+    [HttpGet("archived")]
+    public async Task<ActionResult> GetArchivedClients()
+    {
+        var archivedClients = await _dbContext.Clients.Where(c => c.ArchivingState == ArchivingState.ARCHIVE).ToListAsync();
+        return Ok(archivedClients);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult> GetClientById(Guid id)
+    {
+        var client = await _dbContext.Clients.FindAsync(id);
+
+        if (client == null)
+        {
+            return BadRequest($"Client with ID {id} not found.");
+        }
+
+        return Ok(client);
+    }
+
+    [HttpPost()]
     public async Task<ActionResult> CreateClient([FromBody] CreateClientRequest request)
     {
         if (!ModelState.IsValid)

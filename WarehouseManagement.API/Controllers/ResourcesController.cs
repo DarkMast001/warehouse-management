@@ -19,13 +19,34 @@ public class ResourcesController : ControllerBase
         _dbContext = dbContext;
     }
 
-    [HttpGet]
-    public ActionResult GetResources()
+    [HttpGet("active")]
+    public async Task<ActionResult> GetActiveResources()
     {
-        return Ok(_dbContext.Resources);
+        var activeResources = await _dbContext.Resources.Where(c => c.ArchivingState == ArchivingState.WORKING).ToListAsync();
+        return Ok(activeResources);
     }
 
-    [HttpPost("create")]
+    [HttpGet("archived")]
+    public async Task<ActionResult> GetArchivedResources()
+    {
+        var archivedResources = await _dbContext.Resources.Where(c => c.ArchivingState == ArchivingState.ARCHIVE).ToListAsync();
+        return Ok(archivedResources);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult> GetResourceById(Guid id)
+    {
+        var resource = await _dbContext.Resources.FindAsync(id);
+
+        if (resource == null)
+        {
+            return BadRequest($"Client with ID {id} not found.");
+        }
+
+        return Ok(resource);
+    }
+
+    [HttpPost()]
     public async Task<ActionResult> Create([FromBody] CreateResourceRequest request)
     {
         if (!ModelState.IsValid)

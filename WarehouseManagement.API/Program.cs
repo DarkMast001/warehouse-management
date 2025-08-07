@@ -9,6 +9,16 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:5173")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+
         builder.Services.AddControllers();
         builder.Services.AddSwaggerGen();
 
@@ -22,8 +32,9 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        app.UseCors("AllowFrontend");
 
+        app.UseHttpsRedirection();
         app.MapControllers();
 
         using (var scope = app.Services.CreateScope())
