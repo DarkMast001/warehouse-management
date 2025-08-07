@@ -19,6 +19,12 @@ public class ResourcesController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet]
+    public ActionResult GetResources()
+    {
+        return Ok(_dbContext.Resources);
+    }
+
     [HttpPost("create")]
     public async Task<ActionResult> Create([FromBody] CreateResourceRequest request)
     {

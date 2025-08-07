@@ -20,6 +20,12 @@ public class MeasureUnitsController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet]
+    public ActionResult GetMeasureUnits()
+    {
+        return Ok(_dbContext.MeasureUnits);
+    }
+
     [HttpPost("create")]
     public async Task<ActionResult> CreateMeasureUnit([FromBody] CreateMeasureUnitRequest request)
     {

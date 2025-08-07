@@ -20,6 +20,12 @@ public class ClientsController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet]
+    public ActionResult GetClients()
+    {
+        return Ok(_dbContext.Clients);
+    }
+
     [HttpPost("create")]
     public async Task<ActionResult> CreateClient([FromBody] CreateClientRequest request)
     {
