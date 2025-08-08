@@ -19,6 +19,44 @@ public class ReceiptsController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet("documents")]
+    public ActionResult GetAllDocuments()
+    {
+        return Ok(_dbContext.ReceiptDocuments);
+    }
+
+    [HttpGet("documents/{id:guid}")]
+    public async Task<ActionResult> GetDocuments(Guid id)
+    {
+        var document = await _dbContext.ReceiptDocuments.FindAsync(id);
+
+        if (document == null)
+        {
+            return NotFound($"Document with ID {id} not found.");
+        }
+
+        return Ok(document);
+    }
+
+    [HttpGet("resourcesindocument/{id:guid}")]
+    public ActionResult GetResourcesinDocument(Guid id)
+    {
+        var resources = _dbContext.ReceiptResources.Where(rr => rr.ReceiptDocumentId == id);
+
+        if (resources == null)
+        {
+            return NotFound($"Resource attached to document with ID {id} not found.");
+        }
+
+        return Ok(resources);
+    }
+
+    [HttpPost("documents/filter")]
+    public async Task<ActionResult> GetFilterDocuments([FromBody] FilterReceiptsRequest request)
+    {
+        return Ok(); 
+    }
+
     [HttpPost("resources")]
     public async Task<ActionResult<Guid>> CraeteResource([FromBody] CreateReceiptResourceRequest request)
     {

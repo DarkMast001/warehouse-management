@@ -20,6 +20,12 @@ public class MeasureUnitsController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet]
+    public ActionResult GetALLMeasureUnits()
+    {
+        return Ok(_dbContext.MeasureUnits);
+    }
+
     [HttpGet("active")]
     public async Task<ActionResult> GetActiveMeasureUnits()
     {

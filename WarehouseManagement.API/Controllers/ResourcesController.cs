@@ -19,6 +19,12 @@ public class ResourcesController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet]
+    public ActionResult GetAllResources()
+    {
+        return Ok(_dbContext.Resources);
+    }
+
     [HttpGet("active")]
     public async Task<ActionResult> GetActiveResources()
     {
