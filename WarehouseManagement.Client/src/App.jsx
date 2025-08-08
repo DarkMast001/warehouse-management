@@ -18,6 +18,9 @@ import AddMeasureUnit from './components/Items/MeasureUnits/AddMeasureUnit/AddMe
 import ArchivedMeasureUnits from './components/Items/MeasureUnits/ArchivedMeasureUnits/ArchivedMeasureUnits';
 import MeasureUnitDetails from './components/Items/MeasureUnits/MeasureUnitDetails/MeasureUnitDetails';
 
+import Balance from './components/Warehouse/Balance/Balance';
+import Receipts from './components/Warehouse/Receipts/Receipts';
+
 import './App.css';
 import './components/Items/CommonItemListStyle.css';
 import './components/Items/CommonItemDetailsStyle.css';
@@ -47,6 +50,10 @@ export default function App() {
             <Route path="/measureunits/new" element={<AddMeasureUnit />} />
             <Route path="/measureunits/archived" element={<ArchivedMeasureUnits />} />
             <Route path="/measureunits/:id" element={<MeasureUnitDetails />} />
+
+            <Route path="/balance" element={<Balance />} />
+            
+            <Route path="/receipts" element={<Receipts />} />
           </Routes>
         </div>
       </div>
