@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using WarehouseManagement.API.DTO;
 using WarehouseManagement.API.DTOs;
 using WarehouseManagement.API.Services;
 using WarehouseManagement.DataAccess.Postgres;
 using WarehouseManagement.DataAccess.Postgres.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WarehouseManagement.API.Controllers;
 
@@ -25,10 +28,86 @@ public class ReceiptsController : ControllerBase
         return Ok(_dbContext.ReceiptDocuments);
     }
 
+    [HttpGet("documents-with-resources")]
+    public async Task<ActionResult<IEnumerable<DocumentWithResourcesDto>>> GetDocumentsWithResources([FromQuery] FilterReceiptsRequest filter)
+    {
+        var query = _dbContext.ReceiptDocuments
+        .Include(d => d.ReceiptResources)
+            .ThenInclude(rr => rr.Resource)
+        .Include(d => d.ReceiptResources)
+            .ThenInclude(rr => rr.MeasureUnit)
+        .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.DocumentNumber))
+        {
+            query = query.Where(d => d.Number == Convert.ToInt32(filter.DocumentNumber));
+        }
+
+        if (filter.DateFrom.HasValue)
+        {
+            query = query.Where(d => d.Date >= filter.DateFrom.Value);
+        }
+        if (filter.DateTo.HasValue)
+        {
+            query = query.Where(d => d.Date <= filter.DateTo.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.ResourceName))
+        {
+            query = query.Where(d => d.ReceiptResources.Any(rr => rr.Resource.Name.Equals(filter.ResourceName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.MeasureUnitName))
+        {
+            query = query.Where(d => d.ReceiptResources.Any(rr => rr.MeasureUnit.Name.Equals(filter.MeasureUnitName)));
+        }
+
+        var documents = await query
+            .Select(d => new DocumentWithResourcesDto
+            {
+                Id = d.Id,
+                Number = d.Number,
+                Date = d.Date,
+                Resources = d.ReceiptResources.Select(rr => new ReceiptResourceDto
+                {
+                    Id = rr.Id,
+                    Name = rr.Resource.Name,
+                    MeasureUnitName = rr.MeasureUnit.Name,
+                    Quantity = rr.Quantity
+                }).ToList()
+            })
+            .ToListAsync();
+
+        return Ok(documents);
+    }
+
     [HttpGet("documents/{id:guid}")]
     public async Task<ActionResult> GetDocuments(Guid id)
     {
-        var document = await _dbContext.ReceiptDocuments.FindAsync(id);
+        var query = _dbContext.ReceiptDocuments
+        .Include(d => d.ReceiptResources)
+            .ThenInclude(rr => rr.Resource)
+        .Include(d => d.ReceiptResources)
+            .ThenInclude(rr => rr.MeasureUnit)
+        .AsQueryable();
+
+        query = query.Where(d => d.Id == id);
+
+        var document = await query
+            .Select(d => new DocumentWithResourcesDto
+            {
+                Id = d.Id,
+                Number = d.Number,
+                Date = d.Date,
+                Resources = d.ReceiptResources.Select(rr => new ReceiptResourceDto
+                {
+                    Id = rr.Id,
+                    Name = rr.Resource.Name,
+                    MeasureUnitName = rr.MeasureUnit.Name,
+                    Quantity = rr.Quantity
+                }).ToList()
+            })
+            .ToListAsync();
 
         if (document == null)
         {
@@ -36,25 +115,6 @@ public class ReceiptsController : ControllerBase
         }
 
         return Ok(document);
-    }
-
-    [HttpGet("resourcesindocument/{id:guid}")]
-    public ActionResult GetResourcesinDocument(Guid id)
-    {
-        var resources = _dbContext.ReceiptResources.Where(rr => rr.ReceiptDocumentId == id);
-
-        if (resources == null)
-        {
-            return NotFound($"Resource attached to document with ID {id} not found.");
-        }
-
-        return Ok(resources);
-    }
-
-    [HttpPost("documents/filter")]
-    public async Task<ActionResult> GetFilterDocuments([FromBody] FilterReceiptsRequest request)
-    {
-        return Ok(); 
     }
 
     [HttpPost("resources")]
@@ -131,9 +191,15 @@ public class ReceiptsController : ControllerBase
 
         _dbContext.ReceiptDocuments.Add(document);
         await BalanceHelper.UpdateReceiptsBalanceAsync(resources, _dbContext);
-        await _dbContext.SaveChangesAsync();
-
-        return Ok(document.Id);
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(document.Id);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23505" : false)
+        {
+            return Conflict("Cannot add because document with such number already exist.");
+        }
     }
 
     [HttpPut("documents/{id:guid}")]
@@ -150,6 +216,9 @@ public class ReceiptsController : ControllerBase
         {
             return NotFound($"Document with ID {id} not found");
         }
+
+        document.Number = request.NewNumber;
+        document.Date = request.NewDate;
 
         var resourceIds = request.NewReceiptResourceIds.ToList();
         var resources = await _dbContext.ReceiptResources

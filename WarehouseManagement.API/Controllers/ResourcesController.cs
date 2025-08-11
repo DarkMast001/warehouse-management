@@ -180,7 +180,7 @@ public class ResourcesController : ControllerBase
             await _dbContext.SaveChangesAsync();
             return Ok("Success");
         }
-        catch (DbUpdateException ex) when(ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23503" : false)
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23503" : false)
         {
             return Conflict("Cannot delete resource because it is used in one or more documents.");
         }

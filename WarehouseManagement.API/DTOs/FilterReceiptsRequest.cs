@@ -3,8 +3,9 @@
 namespace WarehouseManagement.API.DTOs;
 
 public record FilterReceiptsRequest(
-    [BindRequired] DateOnly DateFrom,
-    [BindRequired] DateOnly DateTo,
-    [BindRequired] int NumberOfDocument,
-    [BindRequired] string ResourceId,
-    [BindRequired] string MeasureUnitId);
+    string? DocumentNumber,
+    DateOnly? DateFrom,
+    DateOnly? DateTo,
+    int? NumberOfDocument,
+    string? ResourceName,
+    string? MeasureUnitName);
