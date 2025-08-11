@@ -1,0 +1,247 @@
+.add-receipt {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.add-receipt-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.add-receipt-header h1 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.document-form {
+  margin-bottom: 30px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+}
+
+.form-input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.resources-section {
+  margin-bottom: 30px;
+}
+
+.resources-section h2 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.new-resource-form {
+  margin-bottom: 20px;
+}
+
+.resource-row {
+  display: table-row;
+}
+
+.new-resource-row {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.resource-cell {
+  display: table-cell;
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.resources-table-container {
+  overflow-x: auto;
+}
+
+.resources-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.resources-table th,
+.resources-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.resources-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.resource-select,
+.measure-unit-select,
+.quantity-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.resource-select:focus,
+.measure-unit-select:focus,
+.quantity-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.add-resource-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background-color: #27ae60;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.add-resource-btn:hover {
+  background-color: #229954;
+  transform: scale(1.1);
+}
+
+.remove-resource-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.remove-resource-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.1);
+}
+
+.no-resources {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  font-style: italic;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-receipt-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-group {
+    min-width: auto;
+  }
+
+  .new-resource-form {
+    overflow-x: auto;
+  }
+
+  .resource-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .resource-cell {
+    display: flex;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

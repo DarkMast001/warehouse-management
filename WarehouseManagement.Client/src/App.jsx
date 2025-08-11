@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Sidebar from './components/Sidebar/Sidebar';
@@ -19,7 +18,10 @@ import ArchivedMeasureUnits from './components/Items/MeasureUnits/ArchivedMeasur
 import MeasureUnitDetails from './components/Items/MeasureUnits/MeasureUnitDetails/MeasureUnitDetails';
 
 import Balance from './components/Warehouse/Balance/Balance';
-import Receipts from './components/Warehouse/Receipts/Receipts';
+
+import ReceiptsList from './components/Warehouse/Receipts/ReceiptsList/ReceiptsList';
+import AddReceipt from './components/Warehouse/Receipts/AddReceipt/AddReceipt';
+import ReceiptDetails from './components/Warehouse/Receipts/ReceiptDetails/ReceiptDetails';
 
 import './App.css';
 import './components/Items/CommonItemListStyle.css';
@@ -53,10 +55,12 @@ export default function App() {
 
             <Route path="/balance" element={<Balance />} />
             
-            <Route path="/receipts" element={<Receipts />} />
+            <Route path="/receipts" element={<ReceiptsList />} />
+            <Route path="/receipts/new" element={<AddReceipt />} />
+            <Route path="/receipts/:id" element={<ReceiptDetails />} />
           </Routes>
         </div>
       </div>
     </Router>
-  )
-}
+  );
+};

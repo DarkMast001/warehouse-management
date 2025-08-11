@@ -1,23 +1,23 @@
-.receipts {
+.receipts-list {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
 }
 
-.receipts-header {
+.receipts-list-header {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
 }
 
-.receipts-header h1 {
+.receipts-list-header h1 {
   margin: 0;
   color: #333;
   font-size: 24px;
 }
 
-.receipts-filters {
+.receipts-list-filters {
   margin-bottom: 20px;
 }
 
@@ -85,25 +85,25 @@
   letter-spacing: 0.5px;
 }
 
-.receipts-table-container {
+.receipts-list-table-container {
   overflow-x: auto;
 }
 
-.receipts-table {
+.receipts-list-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
 }
 
-.receipts-table th,
-.receipts-table td {
+.receipts-list-table th,
+.receipts-list-table td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
   vertical-align: top;
 }
 
-.receipts-table th {
+.receipts-list-table th {
   background-color: #f8f9fa;
   font-weight: 600;
   color: #555;
@@ -112,7 +112,7 @@
   letter-spacing: 0.5px;
 }
 
-.receipt-row:hover {
+.receipt-list-row:hover {
   background-color: #f8f9fa;
 }
 
@@ -133,7 +133,7 @@
   font-style: italic;
 }
 
-.receipts-loading {
+.receipts-list-loading {
   text-align: center;
   padding: 40px;
   font-size: 18px;

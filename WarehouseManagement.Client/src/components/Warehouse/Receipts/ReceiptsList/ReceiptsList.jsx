@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Receipts.css';
+import './ReceiptsList.css';
 
 const Receipts = () => {
   const [documents, setDocuments] = useState([]);
@@ -11,36 +12,44 @@ const Receipts = () => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [selectedDocumentNumber, setSelectedDocumentNumber] = useState('');
-  const [selectedResourceId, setSelectedResourceId] = useState('');
-  const [selectedMeasureUnitId, setSelectedMeasureUnitId] = useState('');
+  const [selectedResourceName, setSelectedResourceName] = useState('');
+  const [selectedMeasureUnitName, setSelectedMeasureUnitName] = useState('');
 
   const [documentNumbers, setDocumentNumbers] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
         
-        const [resourcesResponse, measureUnitsResponse] = await Promise.all([
+        const filters = {
+          documentNumber: null,
+          dateFrom: null,
+          dateTo: null,
+          resourceName: null,
+          measureUnitName: null
+        }
+
+        const [documentsResponse, resourcesResponse, measureUnitsResponse] = await Promise.all([
+          axios.get('https://localhost:7111/receipts/documents-with-resources', {
+            params: filters
+          }),
           axios.get('https://localhost:7111/resources'),
           axios.get('https://localhost:7111/measureunits')
         ]);
         
+        const documentsData = documentsResponse.data;
         const resourcesData = resourcesResponse.data;
         const measureUnitsData = measureUnitsResponse.data;
         
         setResources(resourcesData);
         setMeasureUnits(measureUnitsData);
+        setDocuments(documentsData);
         
-        const documentsResponse = await axios.get('https://localhost:7111/receipts/documents');
-        const documentsData = documentsResponse.data;
-        
-        const uniqueNumbers = [...new Set(documentsData.map(doc => doc.number))];
-        setDocumentNumbers(uniqueNumbers.sort((a, b) => a - b));
-        
-        const formattedDocuments = await loadAndFormatDocuments(documentsData, resourcesData, measureUnitsData);
-        
-        setDocuments(formattedDocuments);
+        setDocumentNumbers(documentsData.map(doc => doc.number));
+
         setLoading(false);
       } catch (error) {
         console.error('Ошибка при получении данных:', error);
@@ -50,59 +59,6 @@ const Receipts = () => {
 
     fetchInitialData();
   }, []);
-
-  const getDocumentResources = async (documentId) => {
-    try {
-      const response = await axios.get(`https://localhost:7111/receipts/resourcesindocument/${documentId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Ошибка при получении ресурсов документа:', error);
-      return [];
-    }
-  };
-
-  const formatResourcesWithNames = (resourcesData, resourcesList, measureUnitsList) => {
-    const resourceMap = {};
-    const measureUnitMap = {};
-    
-    resourcesList.forEach(resource => {
-      resourceMap[resource.id] = resource.name;
-    });
-    
-    measureUnitsList.forEach(unit => {
-      measureUnitMap[unit.id] = unit.name;
-    });
-    
-    return resourcesData.map(resource => ({
-      ...resource,
-      resourceName: resourceMap[resource.resourceId] || 'Не указан',
-      measureUnitName: measureUnitMap[resource.measureUnitId] || 'Не указана'
-    }));
-  };
-
-  const loadAndFormatDocuments = async (documentsData, resourcesData, measureUnitsData) => {
-    try {
-      const documentsWithResources = await Promise.all(
-        documentsData.map(async (doc) => {
-          const resourcesForDoc = await getDocumentResources(doc.id);
-          return {
-            ...doc,
-            receiptResources: resourcesForDoc,
-          };
-        })
-      );
-      
-      const formattedDocuments = documentsWithResources.map((doc) => ({
-        ...doc,
-        receiptResources: formatResourcesWithNames(doc.receiptResources, resourcesData, measureUnitsData),
-      }));
-      
-      return formattedDocuments;
-    } catch (error) {
-      console.error('Ошибка при загрузке и форматировании документов:', error);
-      return documentsData.map(doc => ({ ...doc, receiptResources: [] }));
-    }
-  };
 
   const handleDateFromChange = (event) => {
     setDateFrom(event.target.value);
@@ -117,56 +73,30 @@ const Receipts = () => {
   };
 
   const handleResourceChange = (event) => {
-    setSelectedResourceId(event.target.value);
+    setSelectedResourceName(event.target.value);
   };
 
   const handleMeasureUnitChange = (event) => {
-    setSelectedMeasureUnitId(event.target.value);
+    setSelectedMeasureUnitName(event.target.value);
   };
 
   const applyFilters = async () => {
     try {
       setLoading(true);
+
+      const filters = {
+        documentNumber: selectedDocumentNumber === "" ? null : selectedDocumentNumber,
+        dateFrom: dateFrom === "" ? null : dateFrom,
+        dateTo: dateTo === "" ? null : dateTo,
+        resourceName: selectedResourceName === "" ? null : selectedResourceName,
+        measureUnitName: selectedMeasureUnitName === "" ? null : selectedMeasureUnitName
+      }
       
-      // Здесь будет ваш запрос к API с фильтрами
-      // Пока используем заглушку
-      console.log('Фильтры:', {
-        dateFrom: dateFrom || "",
-        dateTo: dateTo || "",
-        documentNumber: selectedDocumentNumber ? parseInt(selectedDocumentNumber) : "",
-        resourceId: selectedResourceId || "",
-        measureUnitId: selectedMeasureUnitId || ""
+      const documentsResponse = await axios.get('https://localhost:7111/receipts/documents-with-resources', { 
+        params: filters 
       });
       
-      // Симулируем фильтрацию на клиенте
-      let filteredDocuments = [...documents];
-      
-      if (dateFrom) {
-        filteredDocuments = filteredDocuments.filter(doc => new Date(doc.date) >= new Date(dateFrom));
-      }
-      
-      if (dateTo) {
-        filteredDocuments = filteredDocuments.filter(doc => new Date(doc.date) <= new Date(dateTo));
-      }
-      
-      if (selectedDocumentNumber) {
-        const number = parseInt(selectedDocumentNumber);
-        filteredDocuments = filteredDocuments.filter(doc => doc.number === number);
-      }
-      
-      if (selectedResourceId) {
-        filteredDocuments = filteredDocuments.filter(doc =>
-          doc.receiptResources.some(resource => resource.resourceId === selectedResourceId)
-        );
-      }
-      
-      if (selectedMeasureUnitId) {
-        filteredDocuments = filteredDocuments.filter(doc =>
-          doc.receiptResources.some(resource => resource.measureUnitId === selectedMeasureUnitId)
-        );
-      }
-      
-      setDocuments(filteredDocuments);
+      setDocuments(documentsResponse.data);
       setLoading(false);
     } catch (error) {
       console.error('Ошибка при применении фильтров:', error);
@@ -174,21 +104,28 @@ const Receipts = () => {
     }
   };
 
-  // Сбросить фильтры
   const resetFilters = async () => {
     try {
       setLoading(true);
       
-      // Сбрасываем фильтры
       setDateFrom('');
       setDateTo('');
       setSelectedDocumentNumber('');
-      setSelectedResourceId('');
-      setSelectedMeasureUnitId('');
+      setSelectedResourceName('');
+      setSelectedMeasureUnitName('');
+
+      const filters = {
+        documentNumber: null,
+        dateFrom: null,
+        dateTo: null,
+        resourceName: null,
+        measureUnitName: null
+      }
       
-      // Загружаем все документы заново
       const [documentsResponse, resourcesResponse, measureUnitsResponse] = await Promise.all([
-        axios.get('https://localhost:7111/receipts/documents'),
+        axios.get('https://localhost:7111/receipts/documents-with-resources', {
+          params: filters
+        }),
         axios.get('https://localhost:7111/resources'),
         axios.get('https://localhost:7111/measureunits')
       ]);
@@ -197,18 +134,12 @@ const Receipts = () => {
       const resourcesData = resourcesResponse.data;
       const measureUnitsData = measureUnitsResponse.data;
       
-      // Обновляем справочные данные
       setResources(resourcesData);
       setMeasureUnits(measureUnitsData);
+      setDocuments(documentsData);
       
-      // Получаем уникальные номера документов
-      const uniqueNumbers = [...new Set(documentsData.map(doc => doc.number))];
-      setDocumentNumbers(uniqueNumbers.sort((a, b) => a - b));
+      setDocumentNumbers(documentsData.map(doc => doc.number));
       
-      // Загружаем и форматируем документы
-      const formattedDocuments = await loadAndFormatDocuments(documentsData, resourcesData, measureUnitsData);
-      
-      setDocuments(formattedDocuments);
       setLoading(false);
     } catch (error) {
       console.error('Ошибка при сбросе фильтров:', error);
@@ -216,23 +147,21 @@ const Receipts = () => {
     }
   };
 
-  // Добавить документ (заглушка)
   const handleAddDocument = () => {
-    alert('Функция добавления документа будет реализована позже');
+    navigate("/receipts/new");
   };
 
   if (loading && documents.length === 0) {
-    return <div className="receipts-loading">Загрузка поступлений...</div>;
+    return <div className="receipts-list-loading">Загрузка поступлений...</div>;
   }
 
   return (
-    <div className="receipts">
-      <div className="receipts-header">
+    <div className="receipts-list">
+      <div className="receipts-list-header">
         <h1>Поступления</h1>
       </div>
 
-      {/* Фильтры */}
-      <div className="receipts-filters">
+      <div className="receipts-list-filters">
         <div className="filter-row">
           <div className="filter-group">
             <label className="filter-label">
@@ -283,12 +212,12 @@ const Receipts = () => {
               Ресурс:
               <select
                 className="filter-select"
-                value={selectedResourceId}
+                value={selectedResourceName}
                 onChange={handleResourceChange}
               >
                 <option value="">Все ресурсы</option>
                 {resources.map(resource => (
-                  <option key={resource.id} value={resource.id}>
+                  <option key={resource.id} value={resource.name}>
                     {resource.name}
                   </option>
                 ))}
@@ -301,12 +230,12 @@ const Receipts = () => {
               Единица измерения:
               <select
                 className="filter-select"
-                value={selectedMeasureUnitId}
+                value={selectedMeasureUnitName}
                 onChange={handleMeasureUnitChange}
               >
                 <option value="">Все единицы измерения</option>
                 {measureUnits.map(unit => (
-                  <option key={unit.id} value={unit.id}>
+                  <option key={unit.id} value={unit.name}>
                     {unit.name}
                   </option>
                 ))}
@@ -315,17 +244,15 @@ const Receipts = () => {
           </div>
         </div>
 
-        {/* Кнопки фильтров */}
         <div className="filter-actions">
           <button className="btn btn-apply-to-work" onClick={applyFilters}>Применить</button>
           <button className="btn btn-cancel" onClick={resetFilters}>Сбросить</button>
-          <button className="btn btn-add-save" onClick={handleAddDocument}>Добавить</button>
+          <button to="/receipts/new" className="btn btn-add-save" onClick={handleAddDocument}>Добавить</button>
         </div>
       </div>
 
-      {/* Таблица документов */}
-      <div className="receipts-table-container">
-        <table className="receipts-table">
+      <div className="receipts-list-table-container">
+        <table className="receipts-list-table">
           <thead>
             <tr>
               <th>Номер документа</th>
@@ -337,15 +264,19 @@ const Receipts = () => {
           </thead>
           <tbody>
             {documents.map((document) => (
-              <tr key={document.id} className="receipt-row">
-                <td>{document.number}</td>
+              <tr key={document.id} className="receipt-list-row">
+                <td>
+                  <Link to={`/receipts/${document.id}`} className="item-link">
+                    {document.number}
+                  </Link>
+                  </td>
                 <td>{new Date(document.date).toLocaleDateString('ru-RU')}</td>
                 <td>
                   <div className="multi-line-cell">
-                    {document.receiptResources && document.receiptResources.length > 0 ? (
-                      document.receiptResources.map((resource, index) => (
+                    {document.resources && document.resources.length > 0 ? (
+                      document.resources.map((resource, index) => (
                         <div key={`${resource.id}-${index}`} className="resource-item">
-                          {resource.resourceName}
+                          {resource.name}
                         </div>
                       ))
                     ) : (
@@ -355,8 +286,8 @@ const Receipts = () => {
                 </td>
                 <td>
                   <div className="multi-line-cell">
-                    {document.receiptResources && document.receiptResources.length > 0 ? (
-                      document.receiptResources.map((resource, index) => (
+                    {document.resources && document.resources.length > 0 ? (
+                      document.resources.map((resource, index) => (
                         <div key={`${resource.id}-${index}`} className="measure-unit-item">
                           {resource.measureUnitName}
                         </div>
@@ -368,8 +299,8 @@ const Receipts = () => {
                 </td>
                 <td>
                   <div className="multi-line-cell">
-                    {document.receiptResources && document.receiptResources.length > 0 ? (
-                      document.receiptResources.map((resource, index) => (
+                    {document.resources && document.resources.length > 0 ? (
+                      document.resources.map((resource, index) => (
                         <div key={`${resource.id}-${index}`} className="quantity-item">
                           {resource.quantity}
                         </div>
