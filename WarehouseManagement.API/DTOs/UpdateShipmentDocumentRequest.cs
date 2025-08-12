@@ -3,7 +3,7 @@
 namespace WarehouseManagement.API.DTOs;
 
 public record UpdateShipmentDocumentRequest(
-    [Required] 
+    [Required]
     [Range(1, int.MaxValue, ErrorMessage = "Number must be greater than 0.")] int NewNumber,
     [Required] Guid NewClient,
     [Required] DateOnly NewDate,

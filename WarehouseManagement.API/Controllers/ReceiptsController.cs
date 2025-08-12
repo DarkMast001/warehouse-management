@@ -7,7 +7,6 @@ using WarehouseManagement.API.DTOs;
 using WarehouseManagement.API.Services;
 using WarehouseManagement.DataAccess.Postgres;
 using WarehouseManagement.DataAccess.Postgres.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WarehouseManagement.API.Controllers;
 
@@ -29,14 +28,14 @@ public class ReceiptsController : ControllerBase
     }
 
     [HttpGet("documents-with-resources")]
-    public async Task<ActionResult<IEnumerable<DocumentWithResourcesDto>>> GetDocumentsWithResources([FromQuery] FilterReceiptsRequest filter)
+    public async Task<ActionResult<IEnumerable<ReceiptDocumentWithResourcesDto>>> GetDocumentsWithResources([FromQuery] FilterReceiptsRequest filter)
     {
         var query = _dbContext.ReceiptDocuments
-        .Include(d => d.ReceiptResources)
-            .ThenInclude(rr => rr.Resource)
-        .Include(d => d.ReceiptResources)
-            .ThenInclude(rr => rr.MeasureUnit)
-        .AsQueryable();
+            .Include(d => d.ReceiptResources)
+                .ThenInclude(rr => rr.Resource)
+            .Include(d => d.ReceiptResources)
+                .ThenInclude(rr => rr.MeasureUnit)
+            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter.DocumentNumber))
         {
@@ -63,7 +62,7 @@ public class ReceiptsController : ControllerBase
         }
 
         var documents = await query
-            .Select(d => new DocumentWithResourcesDto
+            .Select(d => new ReceiptDocumentWithResourcesDto
             {
                 Id = d.Id,
                 Number = d.Number,
@@ -94,7 +93,7 @@ public class ReceiptsController : ControllerBase
         query = query.Where(d => d.Id == id);
 
         var document = await query
-            .Select(d => new DocumentWithResourcesDto
+            .Select(d => new ReceiptDocumentWithResourcesDto
             {
                 Id = d.Id,
                 Number = d.Number,

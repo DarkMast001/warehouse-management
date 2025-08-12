@@ -3,7 +3,7 @@ using WarehouseManagement.DataAccess.Postgres.Enums;
 
 namespace WarehouseManagement.API.DTO;
 
-public class DocumentWithResourcesDto
+public class ReceiptDocumentWithResourcesDto
 {
     public Guid Id { get; set; }
 

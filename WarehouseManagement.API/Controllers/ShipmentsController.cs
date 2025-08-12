@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Resources;
+using WarehouseManagement.API.DTO;
 using WarehouseManagement.API.DTOs;
 using WarehouseManagement.API.Services;
 using WarehouseManagement.DataAccess.Postgres;
@@ -8,15 +10,123 @@ using WarehouseManagement.DataAccess.Postgres.Models;
 
 namespace WarehouseManagement.API.Controllers;
 
-[Route("shipment")]
+[Route("shipments")]
 [ApiController]
-public class ShipmentController : ControllerBase
+public class ShipmentsController : ControllerBase
 {
     private readonly WarehouseDbContext _dbContext;
 
-    public ShipmentController(WarehouseDbContext dbContext)
+    public ShipmentsController(WarehouseDbContext dbContext)
     {
         _dbContext = dbContext;   
+    }
+
+    [HttpGet("documents")]
+    public ActionResult GetAllDocuments()
+    {
+        return Ok(_dbContext.ShipmentDocuments);
+    }
+
+    [HttpGet("document/{id:guid}")]
+    public async Task<ActionResult> GetDocumentById(Guid id)
+    {
+        var query = _dbContext.ShipmentDocuments
+            .Include(d => d.Client)
+            .Include(d => d.ShipmentResources)
+                .ThenInclude(rr => rr.Resource)
+            .Include(d => d.ShipmentResources)
+                .ThenInclude(rr => rr.MeasureUnit)
+            .AsQueryable();
+
+        query = query.Where(d => d.Id == id);
+
+        var document = await query
+            .Select(d => new ShipmentDocumentWithResources
+            {
+                Id = d.Id,
+                Number = d.Number,
+                Date = d.Date,
+                ClientId = d.ClientId,
+                ClientName = d.Client.Name,
+                Status = d.DocumentState.ToString(),
+                Resources = d.ShipmentResources.Select(rr => new ShipmentResourceDto
+                {
+                    Id = rr.Id,
+                    ResourceId = rr.ResourceId,
+                    Name = rr.Resource.Name,
+                    MeasureUnitId = rr.MeasureUnitId,
+                    MeasureUnitName = rr.MeasureUnit.Name,
+                    Quantity = rr.Quantity
+                }).ToList()
+            })
+            .ToListAsync();
+
+        if (document == null)
+        {
+            return NotFound($"Document with ID {id} not found.");
+        }
+
+        return Ok(document);
+    }
+
+    [HttpGet("documents-with-resources")]
+    public async Task<ActionResult<IEnumerable<ReceiptDocumentWithResourcesDto>>> GetDocumentsWithResources([FromQuery] FilterShipmentsRequest filter)
+    {
+        var query = _dbContext.ShipmentDocuments
+            .Include(d => d.Client)
+            .Include(d => d.ShipmentResources)
+                .ThenInclude(rr => rr.Resource)
+            .Include(d => d.ShipmentResources)
+                .ThenInclude(rr => rr.MeasureUnit)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.DocumentNumber))
+        {
+            query = query.Where(d => d.Number == Convert.ToInt32(filter.DocumentNumber));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.ClientName))
+        {
+            query = query.Where(d => d.Client.Name.Equals(filter.ClientName));
+        }
+
+        if (filter.DateFrom.HasValue)
+        {
+            query = query.Where(d => d.Date >= filter.DateFrom.Value);
+        }
+        if (filter.DateTo.HasValue)
+        {
+            query = query.Where(d => d.Date <= filter.DateTo.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.ResourceName))
+        {
+            query = query.Where(d => d.ShipmentResources.Any(rr => rr.Resource.Name.Equals(filter.ResourceName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.MeasureUnitName))
+        {
+            query = query.Where(d => d.ShipmentResources.Any(rr => rr.MeasureUnit.Name.Equals(filter.MeasureUnitName)));
+        }
+
+        var documents = await query
+            .Select(d => new ShipmentDocumentWithResources
+            {
+                Id = d.Id,
+                Number = d.Number,
+                Date = d.Date,
+                ClientName = d.Client.Name,
+                Status = d.DocumentState.ToString(),
+                Resources = d.ShipmentResources.Select(rr => new ShipmentResourceDto
+                {
+                    Id = rr.Id,
+                    Name = rr.Resource.Name,
+                    MeasureUnitName = rr.MeasureUnit.Name,
+                    Quantity = rr.Quantity
+                }).ToList()
+            }).ToListAsync();
+
+        return Ok(documents);
     }
 
     [HttpPost("resource")]
@@ -101,9 +211,16 @@ public class ShipmentController : ControllerBase
         }
 
         _dbContext.ShipmentDocuments.Add(document);
-        await _dbContext.SaveChangesAsync();
 
-        return Ok(document.Id);
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(document.Id);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23505" : false)
+        {
+            return Conflict("Cannot add because document with such number already exist.");
+        }
     }
 
     [HttpPost("document/{id:guid}/sign")]
@@ -190,7 +307,6 @@ public class ShipmentController : ControllerBase
             document.ShipmentResources.Add(resource);
         }
 
-        await BalanceHelper.DecreaseShipmentBalanceAsync(resources, _dbContext);
         await _dbContext.SaveChangesAsync();
 
         return Ok();
