@@ -23,6 +23,10 @@ import ReceiptsList from './components/Warehouse/Receipts/ReceiptsList/ReceiptsL
 import AddReceipt from './components/Warehouse/Receipts/AddReceipt/AddReceipt';
 import ReceiptDetails from './components/Warehouse/Receipts/ReceiptDetails/ReceiptDetails';
 
+import ShipmentsList from './components/Warehouse/Shipments/ShipmentsList/ShipmentsList';
+import AddShipment from './components/Warehouse/Shipments/AddShipment/AddShipment';
+import ShipmentDetails from './components/Warehouse/Shipments/ShipmentDetails/ShipmentDetails';
+
 import './App.css';
 import './components/Items/CommonItemListStyle.css';
 import './components/Items/CommonItemDetailsStyle.css';
@@ -58,6 +62,10 @@ export default function App() {
             <Route path="/receipts" element={<ReceiptsList />} />
             <Route path="/receipts/new" element={<AddReceipt />} />
             <Route path="/receipts/:id" element={<ReceiptDetails />} />
+
+            <Route path="/shipments" element={<ShipmentsList />} />
+            <Route path="/shipments/new" element={<AddShipment />} />
+            <Route path="/shipments/:id" element={<ShipmentDetails />} />
           </Routes>
         </div>
       </div>

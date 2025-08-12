@@ -1,39 +1,39 @@
-.receipts-list {
+.shipments-list {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 20px;
 }
 
-.receipts-list-header {
+.shipments-list-header {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
 }
 
-.receipts-list-header h1 {
+.shipments-list-header h1 {
   margin: 0;
   color: #333;
   font-size: 24px;
 }
 
-.receipts-list-filters {
+.shipments-list-filters {
   margin-bottom: 20px;
 }
 
-.receipts-filter-row {
+.shipments-filter-row {
   display: flex;
   gap: 20px;
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
 
-.receipts-filter-group {
+.shipments-filter-group {
   display: flex;
   flex-direction: column;
 }
 
-.receipts-filter-label {
+.shipments-filter-label {
   display: flex;
   flex-direction: column;
   font-weight: 500;
@@ -41,8 +41,8 @@
   font-size: 14px;
 }
 
-.receipts-filter-date,
-.receipts-filter-select {
+.shipments-filter-date,
+.shipments-filter-select {
   padding: 8px 12px;
   font-size: 14px;
   border: 1px solid #ddd;
@@ -51,23 +51,23 @@
   background-color: white;
 }
 
-.receipts-filter-date:focus,
-.receipts-filter-select:focus {
+.shipments-filter-date:focus,
+.shipments-filter-select:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.receipts-filter-date {
+.shipments-filter-date {
   width: 150px;
 }
 
-.receipts-filter-select {
+.shipments-filter-select {
   width: 100%;
   max-width: 250px;
 }
 
-.receipts-filter-actions {
+.shipments-filter-actions {
   display: flex;
   gap: 10px;
   margin-top: 15px;
@@ -85,25 +85,25 @@
   letter-spacing: 0.5px;
 }
 
-.receipts-list-table-container {
+.shipments-list-table-container {
   overflow-x: auto;
 }
 
-.receipts-list-table {
+.shipments-list-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
 }
 
-.receipts-list-table th,
-.receipts-list-table td {
+.shipments-list-table th,
+.shipments-list-table td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
   vertical-align: top;
 }
 
-.receipts-list-table th {
+.shipments-list-table th {
   background-color: #f8f9fa;
   font-weight: 600;
   color: #555;
@@ -112,28 +112,38 @@
   letter-spacing: 0.5px;
 }
 
-.receipt-list-row:hover {
+.shipment-list-row:hover {
   background-color: #f8f9fa;
 }
 
-.receipts-multi-line-cell {
+.shipment-status-cell {
+	color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.shipments-multi-line-cell {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.receipts-resource-item,
-.receipts-measure-unit-item,
-.receipts-quantity-item {
+.shipments-resource-item,
+.shipments-measure-unit-item,
+.shipments-quantity-item {
   padding: 2px 0;
 }
 
-.receipts-empty-cell {
+.shipments-empty-cell {
   color: #999;
   font-style: italic;
 }
 
-.receipts-list-loading {
+.shipments-list-loading {
   text-align: center;
   padding: 40px;
   font-size: 18px;
@@ -141,17 +151,17 @@
 }
 
 @media (max-width: 768px) {
-  .receipts-filter-row {
+  .shipments-filter-row {
     flex-direction: column;
     gap: 15px;
   }
 
-  .receipts-filter-date,
-  .receipts-filter-select {
+  .shipments-filter-date,
+  .shipments-filter-select {
     width: 100%;
   }
 
-  .receipts-filter-actions {
+  .shipments-filter-actions {
     flex-direction: column;
     gap: 10px;
   }
