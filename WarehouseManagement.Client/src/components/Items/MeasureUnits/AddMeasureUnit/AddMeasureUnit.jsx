@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './AddMeasureUnit.css';
 
 const AddMeasureUnit = () => {
@@ -9,6 +10,27 @@ const AddMeasureUnit = () => {
     name: ''
   });
   const [loading, setLoading] = useState(false);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };  
 
   const handleInputChange = (field, value) => {
     setResourceData(prev => ({
@@ -19,7 +41,7 @@ const AddMeasureUnit = () => {
 
   const handleSave = async () => {
     if (!resourceData.name.trim()) {
-      alert('Пожалуйста, заполните все поля!');
+      showNotification('Пожалуйста, заполните все поля!');
       return;
     }
 
@@ -30,10 +52,17 @@ const AddMeasureUnit = () => {
       };
       await axios.post('https://localhost:7111/measureunits', requestBody);
       navigate('/measureunits');
-    } catch (error) {
-      console.error('Ошибка при создании единиц измерения:', error);
-      alert('Ошибка при создании единиц измерения! Единица измерения с таким названием уже существует.');
-    } finally {
+    } 
+    catch (error) {
+      if (error.status == 409) {
+        showNotification('Единица измерения с таким названием уже существует.');
+      }
+      else {
+        showNotification(`Ошибка при создании единиц измерения.`);
+        console.error('Ошибка при создании единиц измерения:', error);
+      }
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -44,6 +73,13 @@ const AddMeasureUnit = () => {
 
   return (
     <div className="add-item">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="add-item-header">
         <h1>Добавить единицу измерения</h1>
         <div className="add-item-actions">

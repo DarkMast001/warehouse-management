@@ -59,7 +59,7 @@ public class ClientsController : ControllerBase
 
         if (exist)
         {
-            return BadRequest($"Client with name '{request.Name}' already exists.");
+            return Conflict($"Client with name '{request.Name}' already exists.");
         }
 
         var client = new ClientEntity()
@@ -67,7 +67,7 @@ public class ClientsController : ControllerBase
             Id = Guid.NewGuid(),
             Name = request.Name,
             Address = request.Address,
-            ArchivingState = DataAccess.Postgres.Enums.ArchivingState.WORKING
+            ArchivingState = ArchivingState.WORKING
         };
 
         _dbContext.Clients.Add(client);
@@ -102,7 +102,7 @@ public class ClientsController : ControllerBase
 
         if (nameExists)
         {
-            return BadRequest($"Measure unit with name '{request.NewName}' already exists.");
+            return Conflict($"Measure unit with name '{request.NewName}' already exists.");
         }
 
         client.Name = request.NewName;
@@ -131,13 +131,20 @@ public class ClientsController : ControllerBase
 
         if (client.ArchivingState == ArchivingState.ARCHIVE)
         {
-            return BadRequest("Client is already archived.");
+            return Conflict("Client is already archived.");
         }
 
         client.ArchivingState = ArchivingState.ARCHIVE;
 
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { Id = client.Id, State = client.ArchivingState });
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Id = client.Id, State = client.ArchivingState });
+        }
+        catch (DbUpdateException e)
+        {
+            return BadRequest($"{e}\n{e.InnerException}");
+        }
     }
 
     [HttpPost("{id:guid}/unarchive")]
@@ -152,13 +159,20 @@ public class ClientsController : ControllerBase
 
         if (client.ArchivingState == ArchivingState.WORKING)
         {
-            return BadRequest("Client is already active.");
+            return Conflict("Client is already active.");
         }
 
         client.ArchivingState = ArchivingState.WORKING;
 
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { Id = client.Id, State = client.ArchivingState });
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Id = client.Id, State = client.ArchivingState });
+        }
+        catch (DbUpdateException e)
+        {
+            return BadRequest($"{e}\n{e.InnerException}");
+        }
     }
 
     [HttpDelete("{id:guid}")]

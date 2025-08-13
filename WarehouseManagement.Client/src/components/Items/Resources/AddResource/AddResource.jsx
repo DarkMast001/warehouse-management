@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './AddResource.css';
 
 const AddResource = () => {
@@ -9,6 +10,27 @@ const AddResource = () => {
     name: ''
   });
   const [loading, setLoading] = useState(false);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };
 
   const handleInputChange = (field, value) => {
     setResourceData(prev => ({
@@ -19,21 +41,31 @@ const AddResource = () => {
 
   const handleSave = async () => {
     if (!resourceData.name.trim()) {
-      alert('Пожалуйста, заполните все поля!');
+      showNotification('Пожалуйста, заполните все поля.');
       return;
     }
 
     try {
       setLoading(true);
+
       const requestBody = {
         name: resourceData.name
       };
+
       await axios.post('https://localhost:7111/resources', requestBody);
+
       navigate('/resources');
-    } catch (error) {
-      console.error('Ошибка при создании ресурса:', error);
-      alert('Ошибка при создании ресурса! Ресурс с таким названием уже существует.');
-    } finally {
+    } 
+    catch (error) {
+      if (error.status == 409) {
+        showNotification('Ресурс с таким названием уже существует.');
+      }
+      else {
+        console.error('Ошибка при создании ресурса:', error);
+        showNotification('Ошибка при создании ресурса!');
+      }
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -44,6 +76,13 @@ const AddResource = () => {
 
   return (
     <div className="add-item">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="add-item-header">
         <h1>Добавить ресурс</h1>
         <div className="add-item-actions">

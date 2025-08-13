@@ -47,7 +47,7 @@ public class MeasureUnitsController : ControllerBase
 
         if (measureUnit == null)
         {
-            return BadRequest($"Client with ID {id} not found.");
+            return NotFound($"Measure unit with ID {id} not found.");
         }
 
         return Ok(measureUnit);
@@ -65,14 +65,14 @@ public class MeasureUnitsController : ControllerBase
 
         if (exist)
         {
-            return BadRequest($"Measure unit with name '{request.Name}' already exists.");
+            return Conflict($"Measure unit with name '{request.Name}' already exists.");
         }
 
         var measureUnit = new MeasureUnitEntity()
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
-            ArchivingState = DataAccess.Postgres.Enums.ArchivingState.WORKING
+            ArchivingState = ArchivingState.WORKING
         };
 
         _dbContext.MeasureUnits.Add(measureUnit);
@@ -107,7 +107,7 @@ public class MeasureUnitsController : ControllerBase
 
         if (nameExists)
         {
-            return BadRequest($"Measure unit with name '{request.NewName}' already exists.");
+            return Conflict($"Measure unit with name '{request.NewName}' already exists.");
         }
 
         measureUnit.Name = request.NewName;
@@ -135,13 +135,20 @@ public class MeasureUnitsController : ControllerBase
 
         if (measureUnit.ArchivingState == ArchivingState.ARCHIVE)
         {
-            return BadRequest("Measure unit is already archived.");
+            return Conflict("Measure unit is already archived.");
         }
 
         measureUnit.ArchivingState = ArchivingState.ARCHIVE;
 
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { Id = measureUnit.Id, State = measureUnit.ArchivingState });
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Id = measureUnit.Id, State = measureUnit.ArchivingState });
+        }
+        catch (DbUpdateException e)
+        {
+            return BadRequest($"{e}\n{e.InnerException}");
+        }
     }
 
     [HttpPost("{id:guid}/unarchive")]
@@ -156,13 +163,20 @@ public class MeasureUnitsController : ControllerBase
 
         if (measureUnit.ArchivingState == ArchivingState.WORKING)
         {
-            return BadRequest("Measure unit is already active.");
+            return Conflict("Measure unit is already active.");
         }
 
         measureUnit.ArchivingState = ArchivingState.WORKING;
 
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { Id = measureUnit.Id, State = measureUnit.ArchivingState });
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Id = measureUnit.Id, State = measureUnit.ArchivingState });
+        }
+        catch (DbUpdateException e)
+        {
+            return BadRequest($"{e}\n{e.InnerException}");
+        }
     }
 
     [HttpDelete("{id:guid}")]

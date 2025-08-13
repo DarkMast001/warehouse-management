@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ShipmentDetails.css';
 
 const ShipmentDetails = () => {
@@ -12,8 +13,6 @@ const ShipmentDetails = () => {
   
   const [document, setDocument] = useState(null);
   const [clients, setClients] = useState([]);
-  const [clientDocument, setClientDocument] = useState(null);
-  const [balanceResources, setBalanceResources] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
 
 	const [documentNumber, setDocumentNumber] = useState('');
@@ -21,6 +20,27 @@ const ShipmentDetails = () => {
   const [documentDate, setDocumentDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [shipmentResources, setShipmentResources] = useState([]);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };  
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -78,10 +98,12 @@ const ShipmentDetails = () => {
 
           setShipmentResources(formattedBalanceResources)
         }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Ошибка при получении документа:', error);
+      } 
+      catch (error) {
+        showNotification('Ошибка получения документа.')
+        console.error("Ошибка при получении документа:", error);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -116,29 +138,29 @@ const ShipmentDetails = () => {
   const updateDocument = async (signDocument = false) => {
     try {
       if (!documentNumber) {
-        alert('Пожалуйста, введите номер документа');
+        showNotification('Пожалуйста, введите номер документа');
         return;
       }
 
       if (!selectedClientId) {
-        alert('Пожалуйста, выберите клиента');
+        showNotification('Пожалуйста, выберите клиента');
         return;
       }
 
       if (!documentDate) {
-        alert('Пожалуйста, введите дату документа');
+        showNotification('Пожалуйста, введите дату документа');
         return;
       }
 
       const number = parseInt(documentNumber);
       if (isNaN(number) || number <= 0) {
-        alert('Номер документа должен быть положительным числом');
+        showNotification('Номер документа должен быть положительным числом');
         return;
       }
 
       const resourcesToShip = shipmentResources.filter(resource => resource.shipmentQuantity > 0);
       if (resourcesToShip.length === 0) {
-        alert('Пожалуйста, укажите количество для отгрузки хотя бы одного ресурса');
+        showNotification('Пожалуйста, укажите количество для отгрузки хотя бы одного ресурса');
         return;
       }
 
@@ -148,7 +170,7 @@ const ShipmentDetails = () => {
       
       if (invalidResources.length > 0) {
         const invalidResourceNames = invalidResources.map(r => r.resourceName).join(', ');
-        alert(`Количество для отгрузки превышает доступное количество для ресурсов: ${invalidResourceNames}`);
+        showNotification(`Количество для отгрузки превышает доступное количество для ресурсов: ${invalidResourceNames}`);
         return;
       }
 
@@ -183,14 +205,17 @@ const ShipmentDetails = () => {
       }
 
       navigate('/shipments');
-    } catch (error) {
+    } 
+    catch (error) {
       if (error.status == 409) {
-        alert('Документ с таким номером уже существует!');
+        showNotification('Документ с таким номером уже существует!');
       }
       else {
         console.error('Ошибка при создании документа:', error);
-        alert('Ошибка при создании документа: ' + (error.response?.data?.message || error.message));
+        showNotification('Ошибка при создании документа: ' + (error.response?.data?.message || error.message));
       }
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -228,10 +253,12 @@ const ShipmentDetails = () => {
       }));
       
 	  navigate("/shipments");
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Ошибка при подписании документа:', error);
-      alert('Ошибка при подписании документа: ' + (error.response?.data?.message || error.message));
-    } finally {
+      showNotification('Ошибка при подписании документа: ' + (error.response?.data?.message || error.message));
+    } 
+    finally {
       setActionLoading(false);
     }
   };
@@ -247,10 +274,12 @@ const ShipmentDetails = () => {
       }));
 
 	  navigate("/shipments")
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Ошибка при отзыве документа:', error);
-      alert('Ошибка при отзыве документа: ' + (error.response?.data?.message || error.message));
-    } finally {
+      showNotification('Ошибка при отзыве документа: ' + (error.response?.data?.message || error.message));
+    } 
+    finally {
       setActionLoading(false);
     }
   };
@@ -278,6 +307,13 @@ const ShipmentDetails = () => {
 
   return (
     <div className="shipment-details">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="shipment-details-header">
         <h1>Документ отгрузки №{document.number}</h1>
       </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ReceiptsList.css';
 
 const Receipts = () => {
@@ -18,6 +19,27 @@ const Receipts = () => {
   const [documentNumbers, setDocumentNumbers] = useState([]);
 
   const navigate = useNavigate();
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  }; 
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -49,10 +71,11 @@ const Receipts = () => {
         setDocuments(documentsData);
         
         setDocumentNumbers(documentsData.map(doc => doc.number));
-
-        setLoading(false);
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('Ошибка при получении данных:', error);
+      }
+      finally{
         setLoading(false);
       }
     };
@@ -97,9 +120,11 @@ const Receipts = () => {
       });
       
       setDocuments(documentsResponse.data);
-      setLoading(false);
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Ошибка при применении фильтров:', error);
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -139,10 +164,11 @@ const Receipts = () => {
       setDocuments(documentsData);
       
       setDocumentNumbers(documentsData.map(doc => doc.number));
-      
-      setLoading(false);
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Ошибка при сбросе фильтров:', error);
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -157,6 +183,13 @@ const Receipts = () => {
 
   return (
     <div className="receipts-list">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="receipts-list-header">
         <h1>Поступления</h1>
       </div>

@@ -27,6 +27,8 @@ import ShipmentsList from './components/Warehouse/Shipments/ShipmentsList/Shipme
 import AddShipment from './components/Warehouse/Shipments/AddShipment/AddShipment';
 import ShipmentDetails from './components/Warehouse/Shipments/ShipmentDetails/ShipmentDetails';
 
+import Notification from './components/Notification/Notification';
+
 import './App.css';
 import './components/Items/CommonItemListStyle.css';
 import './components/Items/CommonItemDetailsStyle.css';
@@ -40,7 +42,7 @@ export default function App() {
         <Sidebar />
         <div className="content">
           <Routes>
-            <Route path="/" element={<ResourcesList />} />
+            <Route path="/" element={<Balance />} />
 
             <Route path="/clients" element={<ClientsList />} />
             <Route path="/clients/new" element={<AddClient />} />

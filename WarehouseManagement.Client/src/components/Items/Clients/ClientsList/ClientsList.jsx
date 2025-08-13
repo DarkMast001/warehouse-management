@@ -1,14 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ClientsList.css';
 
 const ClientsList = () => {
   const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    })); 
+  }; 
 
   useEffect(() => {
     const fetchClients = async () => {
       try {
+        setLoading(true);
         const response = await axios.get('https://localhost:7111/clients/active');
         const formattedClients = response.data.map(user => ({
           id: user.id,
@@ -17,13 +41,22 @@ const ClientsList = () => {
           archivingState: user.archivingState
         }));
         setClients(formattedClients);
-      } catch (error) {
+      } 
+      catch (error) {
+        showNotification(`Ошибка при получении клиентов.`);
         console.error('Ошибка при получении клиентов:', error);
+      }
+      finally{
+        setLoading(false);
       }
     };
 
     fetchClients();
   }, []);
+
+  if (loading) {
+    return <div className="items-loading">Загрузка архивных единиц измерения...</div>;
+  }
 
   return (
     <div className="items-list">

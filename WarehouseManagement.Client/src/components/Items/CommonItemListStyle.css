@@ -25,6 +25,13 @@
   gap: 10px;
 }
 
+.items-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
 .no-items {
   text-align: center;
   padding: 40px;

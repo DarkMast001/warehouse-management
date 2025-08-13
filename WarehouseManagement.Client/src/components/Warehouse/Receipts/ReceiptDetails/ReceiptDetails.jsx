@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ReceiptDetails.css'
 
 const ReceiptDetails = () => {
@@ -30,6 +31,27 @@ const ReceiptDetails = () => {
     Deleted: 'Deleted'
   }
 
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  }; 
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -37,8 +59,8 @@ const ReceiptDetails = () => {
         
         const [documentResponce, resourcesResponse, measureUnitsResponse] = await Promise.all([
           axios.get(`https://localhost:7111/receipts/documents/${id}`),
-          axios.get('https://localhost:7111/resources'),
-          axios.get('https://localhost:7111/measureunits')
+          axios.get('https://localhost:7111/resources/active'),
+          axios.get('https://localhost:7111/measureunits/active')
         ]);
         
         setDocument(documentResponce.data);
@@ -53,10 +75,11 @@ const ReceiptDetails = () => {
           status: ResourceStatus.NotChanged
         }));
         setReceiptResources(resourcesWithDeleteFlag);
-
-        setLoading(false);
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('Ошибка при получении данных:', error);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -95,13 +118,13 @@ const ReceiptDetails = () => {
 
   const addResourceToTable = () => {
     if (!newResource.resourceId || !newResource.measureUnitId || !newResource.quantity) {
-      alert('Пожалуйста, заполните все поля ресурса');
+      showNotification('Пожалуйста, заполните все поля ресурса');
       return;
     }
 
     const quantity = parseFloat(newResource.quantity);
     if (isNaN(quantity) || quantity <= 0) {
-      alert('Количество должно быть положительным числом');
+      showNotification('Количество должно быть положительным числом');
       return;
     }
 
@@ -140,18 +163,18 @@ const ReceiptDetails = () => {
   const handleSubmit = async () => {
   try {
     if (!documentNumber) {
-      alert('Пожалуйста, введите номер документа');
+      showNotification('Пожалуйста, введите номер документа');
       return;
     }
 
     if (!documentDate) {
-      alert('Пожалуйста, введите дату документа');
+      showNotification('Пожалуйста, введите дату документа');
       return;
     }
 
     const number = parseInt(documentNumber);
     if (isNaN(number) || number <= 0) {
-      alert('Номер документа должен быть положительным числом');
+      showNotification('Номер документа должен быть положительным числом');
       return;
     }
 
@@ -181,18 +204,20 @@ const ReceiptDetails = () => {
       newReceiptResourceIds: resourceIds
     };
 
-    console.log(documentData);
     await axios.put(`https://localhost:7111/receipts/documents/${id}`, documentData);
 
     navigate('/receipts');
-  } catch (error) {
+  } 
+  catch (error) {
     if (error.status == 409) {
-      alert('Документ с таким номером уже существует!');
+      showNotification('Документ с таким номером уже существует!');
     }
     else {
       console.error('Ошибка при обновлении документа:', error);
-      alert('Ошибка при обновлении документа: ' + (error.response?.data?.message || error.message));
+      showNotification('Ошибка при обновлении документа: ' + (error.response?.data?.message || error.message));
     }
+  }
+  finally {
     setLoading(false);
   }
 };
@@ -212,6 +237,13 @@ const ReceiptDetails = () => {
 
   return (
     <div className="add-receipt">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="add-receipt-header">
         <h1>Добавить документ поступления</h1>
       </div>

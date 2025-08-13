@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './AddClient.css';
 
 const AddClient = () => {
@@ -11,6 +12,27 @@ const AddClient = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  }; 
+
   const handleInputChange = (field, value) => {
     setClientData(prev => ({
       ...prev,
@@ -20,25 +42,29 @@ const AddClient = () => {
 
   const handleSave = async () => {
     if (!clientData.name.trim() || !clientData.address.trim()) {
-      alert('Пожалуйста, заполните все поля!');
+      showNotification('Пожалуйста, заполните все поля!');
       return;
     }
 
     try {
       setLoading(true);
-      
       const requestBody = {
         name: clientData.name,
         address: clientData.address
       };
-
       await axios.post('https://localhost:7111/clients', requestBody);
-      
       navigate('/clients');
-    } catch (error) {
-      console.error('Ошибка при создании клиента:', error);
-      alert('Ошибка при создании клиента! Клиент с таким именем уже существует.');
-    } finally {
+    } 
+    catch (error) {
+      if (error.status == 409) {
+        showNotification('Клиент с таким именем уже существует.');
+      }
+      else {
+        showNotification(`Ошибка при создании клиента: ${error}`);
+        console.error('Ошибка при создании клиента:', error);
+      }
+    } 
+    finally {
       setLoading(false);
     }
   };
@@ -49,6 +75,13 @@ const AddClient = () => {
 
   return (
     <div className="add-item">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="add-item-header">
         <h1>Добавить клиента</h1>
         <div className="add-item-actions">

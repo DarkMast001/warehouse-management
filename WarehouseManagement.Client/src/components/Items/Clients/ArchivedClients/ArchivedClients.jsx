@@ -1,27 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ArchivedClients.css';
 
 const ArchivedClients = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  }; 
+
   useEffect(() => {
     const fetchArchivedClients = async () => {
       try {
+        setLoading(true);
         const response = await axios.get('https://localhost:7111/clients/archived'); 
-		const formattedClients = response.data.map(user => ({
+        const formattedClients = response.data.map(user => ({
           id: user.id,
           name: user.name,
           address: user.address || 'Не указан',
           archivingState: user.archivingState
         }));
-        setClients(formattedClients);
-		setLoading(false);
-        
-      } catch (error) {
+        setClients(formattedClients);     
+      } 
+      catch (error) {
+        showNotification(`Ошибка при получении архивных клиентов.`);
         console.error('Ошибка при получении архивных клиентов:', error);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -35,6 +60,13 @@ const ArchivedClients = () => {
 
   return (
     <div className="archived-items">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="archived-items-header">
         <h1>Архивные клиенты</h1>
         <div className="archived-items-actions">

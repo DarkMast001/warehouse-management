@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './AddShipment.css';
 
 const AddShipment = () => {
@@ -14,6 +15,27 @@ const AddShipment = () => {
   const [documentDate, setDocumentDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [shipmentResources, setShipmentResources] = useState([]);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  }; 
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -52,10 +74,11 @@ const AddShipment = () => {
         }));
         
         setShipmentResources(formattedBalanceResources);
-        
-        setLoading(false);
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('Ошибка при получении данных:', error);
+      }
+      finally{
         setLoading(false);
       }
     };
@@ -90,29 +113,29 @@ const AddShipment = () => {
   const createDocument = async (signDocument = false) => {
     try {
       if (!documentNumber) {
-        alert('Пожалуйста, введите номер документа');
+        showNotification('Пожалуйста, введите номер документа');
         return;
       }
 
       if (!selectedClientId) {
-        alert('Пожалуйста, выберите клиента');
+        showNotification('Пожалуйста, выберите клиента');
         return;
       }
 
       if (!documentDate) {
-        alert('Пожалуйста, введите дату документа');
+        showNotification('Пожалуйста, введите дату документа');
         return;
       }
 
       const number = parseInt(documentNumber);
       if (isNaN(number) || number <= 0) {
-        alert('Номер документа должен быть положительным числом');
+        showNotification('Номер документа должен быть положительным числом');
         return;
       }
 
       const resourcesToShip = shipmentResources.filter(resource => resource.shipmentQuantity > 0);
       if (resourcesToShip.length === 0) {
-        alert('Пожалуйста, укажите количество для отгрузки хотя бы одного ресурса');
+        showNotification('Пожалуйста, укажите количество для отгрузки хотя бы одного ресурса');
         return;
       }
 
@@ -122,7 +145,7 @@ const AddShipment = () => {
       
       if (invalidResources.length > 0) {
         const invalidResourceNames = invalidResources.map(r => r.resourceName).join(', ');
-        alert(`Количество для отгрузки превышает доступное количество для ресурсов: ${invalidResourceNames}`);
+        showNotification(`Количество для отгрузки превышает доступное количество для ресурсов: ${invalidResourceNames}`);
         return;
       }
 
@@ -155,14 +178,17 @@ const AddShipment = () => {
       }
 
       navigate('/shipments');
-    } catch (error) {
+    } 
+    catch (error) {
       if (error.status == 409) {
-        alert('Документ с таким номером уже существует!');
+        showNotification('Документ с таким номером уже существует!');
       }
       else {
         console.error('Ошибка при создании документа:', error);
-        alert('Ошибка при создании документа: ' + (error.response?.data?.message || error.message));
+        showNotification('Ошибка при создании документа: ' + (error.response?.data?.message || error.message));
       }
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -185,6 +211,13 @@ const AddShipment = () => {
 
   return (
     <div className="add-shipment">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="add-shipment-header">
         <h1>Создать документ отгрузки</h1>
       </div>

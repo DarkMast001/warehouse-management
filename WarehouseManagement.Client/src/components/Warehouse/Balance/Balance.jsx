@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../Notification/Notification';
 import './Balance.css'
 
 const Balance = () => {
@@ -10,6 +11,27 @@ const Balance = () => {
   const [selectedResourceId, setSelectedResourceId] = useState('');
   const [selectedMeasureUnitId, setSelectedMeasureUnitId] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };  
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -30,10 +52,11 @@ const Balance = () => {
 
         const formattedBalances = await formatBalancesWithNames(balancesData, resourcesData, measureUnitsData);
         setBalances(formattedBalances);
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Ошибка при получении клиентов:', error);
+      } 
+      catch (error) {
+        showNotification(`Ошибка при получении клиентов: ${error}`);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -80,8 +103,9 @@ const Balance = () => {
 
       const formattedBalances = await formatBalancesWithNames(response.data, resources, measureUnits);
       setBalances(formattedBalances);
-    } catch (error) {
-      console.error('Ошибка при применении фильтра:', error);
+    } 
+    catch (error) {
+      showNotification(`Ошибка при применении фильтра: ${error}`);
     }
   };
 
@@ -94,8 +118,9 @@ const Balance = () => {
 
       const formattedBalances = await formatBalancesWithNames(response.data, resources, measureUnits);
       setBalances(formattedBalances);
-    } catch (error) {
-      console.error('Ошибка при сбросе фильтра:', error);
+    } 
+    catch (error) {
+      showNotification(`Ошибка при сбросе фильтра: ${error}`);
     }
   };
 
@@ -105,6 +130,13 @@ const Balance = () => {
 
   return (
     <div className="balances-list">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="balances-header">
         <h1>Баланс</h1>
       </div>

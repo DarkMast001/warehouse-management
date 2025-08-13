@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './MeasureUnitDetails.css';
 
 const MeasureUnitDetails = () => {
@@ -9,9 +10,31 @@ const MeasureUnitDetails = () => {
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };  
+
   useEffect(() => {
     const fetchClient = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`https://localhost:7111/measureunits/${id}`);
         const formattedClient = {
           id: response.data.id,
@@ -19,10 +42,12 @@ const MeasureUnitDetails = () => {
           archivingState: response.data.archivingState
         };
         setResource(formattedClient);
-        setLoading(false);
       } 
       catch (error) {
+        showNotification(`Ошибка при получении единиц измерения.`);
         console.error('Ошибка при получении единиц измерения:', error);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -47,6 +72,7 @@ const MeasureUnitDetails = () => {
 
   const handleSave = async () => {
     try {
+      setLoading(true);
       const requestBody = {
         newName: resource.name
       };
@@ -54,7 +80,16 @@ const MeasureUnitDetails = () => {
       navigate('/measureunits');
     } 
     catch (error) {
-      console.error('Ошибка при сохранении:', error);
+      if (error.status == 409) {
+        showNotification('Единицы измерения с таким именем уже существуют.');
+      }
+      else {
+        showNotification(`Ошибка при сохранении.`)
+        console.error('Ошибка при сохранении:', error);
+      }
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -65,10 +100,11 @@ const MeasureUnitDetails = () => {
     }
     catch (error) {
       if (error.status === 409) {
-        alert("Нельзя удалить эту единицу измерения, так как она задействована.");
+        showNotification('Нельзя удалить эту единицу измерения, так как она задействована.');
       }
       else{
-        console.error("Ошибка при удалении: ", error);
+        showNotification(`Ошибка при удалении.`);
+        console.error('Ошибка при удалении:', error);
       }
     }
   };
@@ -80,7 +116,13 @@ const MeasureUnitDetails = () => {
       navigate("/measureunits");
     }
     catch (error) {
-      console.error("Ошибка при архивации: ", error);
+      if (error.status == 409) {
+        showNotification('Единица измерения уже в архиве.');
+      }
+      else {
+        showNotification(`Ошибка при архивации.`);
+        console.error('Ошибка при архивации:', error);
+      }
     }
   };
 
@@ -90,12 +132,25 @@ const MeasureUnitDetails = () => {
       setResource(prev => ({ ...prev, archivingState: 1 }));
       navigate(`/measureunits/archived`);
     } catch (error) {
-      console.error('Ошибка при возврате из архива:', error);
+      if (error.status == 409) {
+        showNotification('Единица измерения уже в работе.');
+      }
+      else {
+        showNotification(`Ошибка при возврате из архива.`);
+        console.error('Ошибка при возврате из архива:', error);
+      }
     }
   };
 
   return (
     <div className="item-details">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="item-details-header">
         <h1>Единица измерения: {resource.name}</h1>
         <div className="item-details-actions">

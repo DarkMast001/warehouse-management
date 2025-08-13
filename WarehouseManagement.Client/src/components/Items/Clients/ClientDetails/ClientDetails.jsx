@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ClientDetails.css';
 
 const ClientDetails = () => {
@@ -9,9 +10,31 @@ const ClientDetails = () => {
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  }; 
+
   useEffect(() => {
     const fetchClient = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(`https://localhost:7111/clients/${id}`);
         const formattedClient = {
           id: response.data.id,
@@ -20,10 +43,12 @@ const ClientDetails = () => {
           archivingState: response.data.archivingState
         };
         setClient(formattedClient);
-        setLoading(false);
       } 
       catch (error) {
+        showNotification(`Ошибка при получении клиента.`);
         console.error('Ошибка при получении клиента:', error);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -48,6 +73,7 @@ const ClientDetails = () => {
 
   const handleSave = async () => {
     try {
+      setLoading(true)
       const requestBody = {
         newName: client.name,
         newAddress: client.address
@@ -56,7 +82,16 @@ const ClientDetails = () => {
       navigate('/clients');
     } 
     catch (error) {
-      console.error('Ошибка при сохранении:', error);
+      if (error.status == 409) {
+        showNotification('Клиент с таким именем уже существует.');
+      }
+      else {
+        showNotification(`Ошибка при сохранении.`);
+        console.error('Ошибка при сохранении:', error);
+      }
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -67,10 +102,11 @@ const ClientDetails = () => {
     }
     catch (error) {
       if (error.status === 409) {
-        alert("Нельзя удалить этого клиента, так как он задействован в одном или более документах");
+        showNotification('Нельзя удалить этого клиента, так как он задействован в одном или более документах');
       }
       else{
-        console.error("Ошибка при удалении: ", error);
+        showNotification(`Ошибка при удалении.`);
+        console.error('Ошибка при удалении:', error);
       }
     }
   };
@@ -82,7 +118,13 @@ const ClientDetails = () => {
       navigate("/clients");
     }
     catch (error) {
-      console.error("Ошибка при архивации: ", error);
+      if (error.status == 409) {
+        showNotification('Клиент уже в архиве.');
+      }
+      else {
+        showNotification(`Ошибка при архивации.`);
+        console.error('Ошибка при архивации:', error);
+      }
     }
   };
 
@@ -92,12 +134,25 @@ const ClientDetails = () => {
       setClient(prev => ({ ...prev, archivingState: 1 }));
       navigate(`/clients/archived`);
     } catch (error) {
-      console.error('Ошибка при возврате из архива:', error);
+      if (error.status == 409) {
+        showNotification('Клиент уже в работе.');
+      }
+      else {
+        showNotification(`Ошибка при возврате из архива.`);
+        console.error('Ошибка при возврате из архива:', error);
+      }
     }
   };
 
   return (
     <div className="item-details">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="item-details-header">
         <h1>Клиент: {client.name}</h1>
         <div className="item-details-actions">

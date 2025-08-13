@@ -64,7 +64,7 @@ public class ResourcesController : ControllerBase
 
         if (exist)
         {
-            return BadRequest($"Resource with name '{request.Name}' already exists.");
+            return Conflict($"Resource with name '{request.Name}' already exists.");
         }
 
         var resource = new ResourceEntity()
@@ -106,7 +106,7 @@ public class ResourcesController : ControllerBase
 
         if (nameExists)
         {
-            return BadRequest($"Resource with name '{request.NewName}' already exists.");
+            return Conflict($"Resource with name '{request.NewName}' already exists.");
         }
 
         resource.Name = request.NewName;
@@ -134,13 +134,20 @@ public class ResourcesController : ControllerBase
 
         if (resource.ArchivingState == ArchivingState.ARCHIVE)
         {
-            return BadRequest("Resource is already archived.");
+            return Conflict("Resource is already archived.");
         }
 
         resource.ArchivingState = ArchivingState.ARCHIVE;
 
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { Id = resource.Id, State = resource.ArchivingState });
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Id = resource.Id, State = resource.ArchivingState });
+        }
+        catch (DbUpdateException e)
+        {
+            return BadRequest($"{e}\n{e.InnerException}");
+        }
     }
 
     [HttpPost("{id:guid}/unarchive")]
@@ -155,13 +162,20 @@ public class ResourcesController : ControllerBase
 
         if (resource.ArchivingState == ArchivingState.WORKING)
         {
-            return BadRequest("Resource is already active.");
+            return Conflict("Resource is already active.");
         }
 
         resource.ArchivingState = ArchivingState.WORKING;
 
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { Id = resource.Id, State = resource.ArchivingState });
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Id = resource.Id, State = resource.ArchivingState });
+        }
+        catch (DbUpdateException e)
+        {
+            return BadRequest($"{e}\n{e.InnerException}");
+        }
     }
 
     [HttpDelete("{id:guid}")]
@@ -175,6 +189,7 @@ public class ResourcesController : ControllerBase
         }
 
         _dbContext.Resources.Remove(resource);
+
         try
         {
             await _dbContext.SaveChangesAsync();

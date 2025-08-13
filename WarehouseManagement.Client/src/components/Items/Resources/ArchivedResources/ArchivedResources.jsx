@@ -1,11 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Notification from '../../../Notification/Notification';
 import './ArchivedResources.css';
 
 const ArchivedResources = () => {
 	const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'error'
+  });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };
 
   useEffect(() => {
     const fetchArchivedResources = async () => {
@@ -16,11 +38,13 @@ const ArchivedResources = () => {
           name: user.name,
           archivingState: user.archivingState
         }));
-        setResources(formattedClients);
-		    setLoading(false);
-        
-      } catch (error) {
+        setResources(formattedClients);  
+      } 
+      catch (error) {
+        showNotification(`Ошибка при получении архивных ресурсов.`);
         console.error('Ошибка при получении архивных ресурсов:', error);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -34,6 +58,13 @@ const ArchivedResources = () => {
 
   return (
     <div className="archived-items">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={hideNotification}
+      />
+
       <div className="archived-items-header">
         <h1>Архивные ресурсы</h1>
         <div className="archived-items-actions">
