@@ -143,7 +143,7 @@ public class MeasureUnitsController : ControllerBase
         try
         {
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Id = measureUnit.Id, State = measureUnit.ArchivingState });
+            return Ok(new { Id = measureUnit.Id, ArchivingState = measureUnit.ArchivingState });
         }
         catch (DbUpdateException e)
         {
@@ -171,7 +171,7 @@ public class MeasureUnitsController : ControllerBase
         try
         {
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Id = measureUnit.Id, State = measureUnit.ArchivingState });
+            return Ok(new { Id = measureUnit.Id, ArchivingState = measureUnit.ArchivingState });
         }
         catch (DbUpdateException e)
         {
@@ -198,7 +198,7 @@ public class MeasureUnitsController : ControllerBase
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23503" : false)
         {
-            return Conflict("Cannot delete resource because it is used in one or more documents.");
+            return Conflict("Cannot delete measure unit because it is used in one or more documents.");
         }
     }
 }

@@ -46,7 +46,7 @@ public class ResourcesController : ControllerBase
 
         if (resource == null)
         {
-            return BadRequest($"Client with ID {id} not found.");
+            return BadRequest($"Resource with ID {id} not found.");
         }
 
         return Ok(resource);
@@ -142,7 +142,7 @@ public class ResourcesController : ControllerBase
         try
         {
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Id = resource.Id, State = resource.ArchivingState });
+            return Ok(new { Id = resource.Id, ArchivingState = resource.ArchivingState });
         }
         catch (DbUpdateException e)
         {
@@ -170,7 +170,7 @@ public class ResourcesController : ControllerBase
         try
         {
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Id = resource.Id, State = resource.ArchivingState });
+            return Ok(new { Id = resource.Id, ArchivingState = resource.ArchivingState });
         }
         catch (DbUpdateException e)
         {

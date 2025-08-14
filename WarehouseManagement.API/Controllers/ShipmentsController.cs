@@ -27,7 +27,7 @@ public class ShipmentsController : ControllerBase
         return Ok(_dbContext.ShipmentDocuments);
     }
 
-    [HttpGet("document/{id:guid}")]
+    [HttpGet("documents/{id:guid}")]
     public async Task<ActionResult> GetDocumentById(Guid id)
     {
         var query = _dbContext.ShipmentDocuments
@@ -115,12 +115,15 @@ public class ShipmentsController : ControllerBase
                 Id = d.Id,
                 Number = d.Number,
                 Date = d.Date,
+                ClientId = d.ClientId,
                 ClientName = d.Client.Name,
                 Status = d.DocumentState.ToString(),
                 Resources = d.ShipmentResources.Select(rr => new ShipmentResourceDto
                 {
                     Id = rr.Id,
+                    ResourceId = rr.ResourceId,
                     Name = rr.Resource.Name,
+                    MeasureUnitId = rr.MeasureUnitId,
                     MeasureUnitName = rr.MeasureUnit.Name,
                     Quantity = rr.Quantity
                 }).ToList()
@@ -129,7 +132,7 @@ public class ShipmentsController : ControllerBase
         return Ok(documents);
     }
 
-    [HttpPost("resource")]
+    [HttpPost("resources")]
     public async Task<ActionResult> CreateResource([FromBody] CreateShipmentResourceRequest request)
     {
         if (!ModelState.IsValid)
@@ -167,7 +170,7 @@ public class ShipmentsController : ControllerBase
         return Ok(shipmentResource.Id);
     }
 
-    [HttpPost("document")]
+    [HttpPost("documents")]
     public async Task<ActionResult> CreateDocument([FromBody] CreateShipmentDocumentRequest request)
     {
         if (!ModelState.IsValid)
@@ -223,7 +226,7 @@ public class ShipmentsController : ControllerBase
         }
     }
 
-    [HttpPost("document/{id:guid}/sign")]
+    [HttpPost("documents/{id:guid}/sign")]
     public async Task<ActionResult> SignDocument(Guid id)
     {
         var document = await _dbContext.ShipmentDocuments
@@ -237,7 +240,7 @@ public class ShipmentsController : ControllerBase
 
         if (document.DocumentState == DataAccess.Postgres.Enums.DocumentState.SIGNED)
         {
-            return BadRequest($"Document {id} has already signed");
+            return Conflict($"Document {id} has already signed");
         }
 
         document.DocumentState = DataAccess.Postgres.Enums.DocumentState.SIGNED;
@@ -249,7 +252,7 @@ public class ShipmentsController : ControllerBase
         return Ok("Success");
     }
 
-    [HttpPost("document/{id:guid}/unsign")]
+    [HttpPost("documents/{id:guid}/unsign")]
     public async Task<ActionResult> UnsignDocument(Guid id)
     {
         var document = await _dbContext.ShipmentDocuments
@@ -263,7 +266,7 @@ public class ShipmentsController : ControllerBase
 
         if (document.DocumentState == DataAccess.Postgres.Enums.DocumentState.NOT_SIGNED)
         {
-            return BadRequest($"Document {id} has already unsigned");
+            return Conflict($"Document {id} has already unsigned");
         }
 
         document.DocumentState = DataAccess.Postgres.Enums.DocumentState.NOT_SIGNED;
@@ -275,7 +278,7 @@ public class ShipmentsController : ControllerBase
         return Ok("Success");
     }
 
-    [HttpPut("document/{id:guid}")]
+    [HttpPut("documents/{id:guid}")]
     public async Task<ActionResult> UpdateDocument(Guid id, [FromBody] UpdateShipmentDocumentRequest request)
     {
         if (!ModelState.IsValid)
@@ -312,7 +315,7 @@ public class ShipmentsController : ControllerBase
         return Ok();
     }
 
-    [HttpDelete("resource/{id:guid}")]
+    [HttpDelete("resources/{id:guid}")]
     public async Task<ActionResult> DeleteResource(Guid id)
     {
         var resource = await _dbContext.ShipmentResources.FindAsync(id);
@@ -329,7 +332,7 @@ public class ShipmentsController : ControllerBase
         return Ok();
     }
 
-    [HttpDelete("document/{id:guid}")]
+    [HttpDelete("documents/{id:guid}")]
     public async Task<ActionResult> DeleteDocument(Guid id)
     {
         var document = await _dbContext.ShipmentDocuments

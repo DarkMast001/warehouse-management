@@ -99,7 +99,7 @@ const Balance = () => {
         resourceId: selectedResourceId || "",
         measureUnitId: selectedMeasureUnitId || ""
       };
-      const response = await axios.post('https://localhost:7111/balance/filter', filterData);
+      const response = await axios.post('https://localhost:7111/balance', filterData);
 
       const formattedBalances = await formatBalancesWithNames(response.data, resources, measureUnits);
       setBalances(formattedBalances);

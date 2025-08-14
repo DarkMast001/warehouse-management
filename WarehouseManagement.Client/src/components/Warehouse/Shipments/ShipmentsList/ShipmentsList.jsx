@@ -63,7 +63,7 @@ const ShipmentsList = () => {
           }),
           axios.get('https://localhost:7111/resources'),
           axios.get('https://localhost:7111/measureunits'),
-          axios.get('https://localhost:7111/clients/active')
+          axios.get('https://localhost:7111/clients')
         ]);
         
         const documentsData = documentsResponse.data;

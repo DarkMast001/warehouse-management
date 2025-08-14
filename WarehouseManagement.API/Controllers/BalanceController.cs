@@ -23,7 +23,7 @@ namespace WarehouseManagement.API.Controllers
             return Ok(_dbContext.Balances);
         }
 
-        [HttpPost("filter")]
+        [HttpPost()]
         public async Task<ActionResult> GetFilteredBalance([FromBody] FilterBalanceRequest request)
         {
             if (!ModelState.IsValid)

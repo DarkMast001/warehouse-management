@@ -236,8 +236,15 @@ public class ReceiptsController : ControllerBase
             document.ReceiptResources.Add(resource);
         }
 
-        await BalanceHelper.UpdateReceiptsBalanceAsync(resources, _dbContext);
-        await _dbContext.SaveChangesAsync();
+        try
+        {
+            await BalanceHelper.UpdateReceiptsBalanceAsync(resources, _dbContext);
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23505" : false)
+        {
+            return Conflict("Cannot update because document with such number already exist.");
+        }
 
         return Ok();
     }
@@ -256,7 +263,7 @@ public class ReceiptsController : ControllerBase
         await BalanceHelper.DecreaseReceiptsBalanceAsync(new List<ReceiptResourceEntity>() { resource }, _dbContext);
         await _dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok("Success");
     }
 
     [HttpDelete("documents/{id:guid}")]

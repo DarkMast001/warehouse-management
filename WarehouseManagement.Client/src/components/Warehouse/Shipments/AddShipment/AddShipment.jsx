@@ -158,7 +158,7 @@ const AddShipment = () => {
           quantity: resource.shipmentQuantity
         };
         
-        const response = await axios.post('https://localhost:7111/shipments/resource', resourceData);
+        const response = await axios.post('https://localhost:7111/shipments/resources', resourceData);
         return response.data;
       });
 
@@ -171,10 +171,10 @@ const AddShipment = () => {
         shipmentResourceIds: resourceIds
       };
 
-      const documentResponse = await axios.post('https://localhost:7111/shipments/document', documentData);
+      const documentResponse = await axios.post('https://localhost:7111/shipments/documents', documentData);
       
       if (signDocument) {
-        await axios.post(`https://localhost:7111/shipments/document/${documentResponse.data}/sign`);
+        await axios.post(`https://localhost:7111/shipments/documents/${documentResponse.data}/sign`);
       }
 
       navigate('/shipments');

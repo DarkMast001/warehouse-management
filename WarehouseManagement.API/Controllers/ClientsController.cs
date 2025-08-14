@@ -20,6 +20,12 @@ public class ClientsController : ControllerBase
         _dbContext = dbContext;
     }
 
+    [HttpGet]
+    public ActionResult GetALLClients()
+    {
+        return Ok(_dbContext.Clients);
+    }
+
     [HttpGet("active")]
     public async Task<ActionResult> GetActiveClients()
     {
@@ -102,7 +108,7 @@ public class ClientsController : ControllerBase
 
         if (nameExists)
         {
-            return Conflict($"Measure unit with name '{request.NewName}' already exists.");
+            return Conflict($"Client with name '{request.NewName}' already exists.");
         }
 
         client.Name = request.NewName;
@@ -139,7 +145,7 @@ public class ClientsController : ControllerBase
         try
         {
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Id = client.Id, State = client.ArchivingState });
+            return Ok(new { Id = client.Id, ArchivingState = client.ArchivingState });
         }
         catch (DbUpdateException e)
         {
@@ -167,7 +173,7 @@ public class ClientsController : ControllerBase
         try
         {
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Id = client.Id, State = client.ArchivingState });
+            return Ok(new { Id = client.Id, ArchivingState = client.ArchivingState });
         }
         catch (DbUpdateException e)
         {
@@ -194,7 +200,7 @@ public class ClientsController : ControllerBase
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx ? pgEx.SqlState == "23503" : false)
         {
-            return Conflict("Cannot delete resource because it is used in one or more documents.");
+            return Conflict("Cannot delete client because it is used in one or more documents.");
         }
     }
 }

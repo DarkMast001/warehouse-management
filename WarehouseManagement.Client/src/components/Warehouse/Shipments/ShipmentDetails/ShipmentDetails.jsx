@@ -47,7 +47,7 @@ const ShipmentDetails = () => {
       try {
         setLoading(true);
 
-        const response = await axios.get(`https://localhost:7111/shipments/document/${id}`);
+        const response = await axios.get(`https://localhost:7111/shipments/documents/${id}`);
         const document = response.data[0]
         setDocument(document);
 
@@ -176,7 +176,7 @@ const ShipmentDetails = () => {
 
       setLoading(true);
 
-      await axios.delete(`https://localhost:7111/shipments/document/${document.id}`);
+      await axios.delete(`https://localhost:7111/shipments/documents/${document.id}`);
 
       const resourcePromises = resourcesToShip.map(async (resource) => {
         const resourceData = {
@@ -185,7 +185,7 @@ const ShipmentDetails = () => {
           quantity: resource.shipmentQuantity
         };
         
-        const response = await axios.post('https://localhost:7111/shipments/resource', resourceData);
+        const response = await axios.post('https://localhost:7111/shipments/resources', resourceData);
         return response.data;
       });
 
@@ -198,10 +198,10 @@ const ShipmentDetails = () => {
         shipmentResourceIds: resourceIds
       };
 
-      const documentResponse = await axios.post('https://localhost:7111/shipments/document', documentData);
+      const documentResponse = await axios.post('https://localhost:7111/shipments/documents', documentData);
       
       if (signDocument) {
-        await axios.post(`https://localhost:7111/shipments/document/${documentResponse.data}/sign`);
+        await axios.post(`https://localhost:7111/shipments/documents/${documentResponse.data}/sign`);
       }
 
       navigate('/shipments');
@@ -235,7 +235,7 @@ const ShipmentDetails = () => {
   const handleDelete = async () => {
     setLoading(true);
 
-    await axios.delete(`https://localhost:7111/shipments/document/${document.id}`);
+    await axios.delete(`https://localhost:7111/shipments/documents/${document.id}`);
 
     setLoading(false);
 
@@ -245,7 +245,7 @@ const ShipmentDetails = () => {
   const handleSignDocument = async () => {
     try {
       setActionLoading(true);
-      await axios.post(`https://localhost:7111/shipments/document/${id}/sign`);
+      await axios.post(`https://localhost:7111/shipments/documents/${id}/sign`);
       
       setDocument(prev => ({
         ...prev,
@@ -266,7 +266,7 @@ const ShipmentDetails = () => {
   const handleUnsignDocument = async () => {
     try {
       setActionLoading(true);
-      await axios.post(`https://localhost:7111/shipments/document/${id}/unsign`);
+      await axios.post(`https://localhost:7111/shipments/documents/${id}/unsign`);
       
       setDocument(prev => ({
         ...prev,
