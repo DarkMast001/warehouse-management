@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import Notification from '../../../Notification/Notification';
+import apiClient from '../../../apiClient';
 import './AddMeasureUnit.css';
 
 const AddMeasureUnit = () => {
@@ -50,7 +50,7 @@ const AddMeasureUnit = () => {
       const requestBody = {
         name: resourceData.name
       };
-      await axios.post('https://localhost:7111/measureunits', requestBody);
+      await apiClient.post('/measureunits', requestBody);
       navigate('/measureunits');
     } 
     catch (error) {

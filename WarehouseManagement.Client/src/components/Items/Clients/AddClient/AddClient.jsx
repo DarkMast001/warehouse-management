@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import Notification from '../../../Notification/Notification';
+import apiClient from '../../../apiClient';
 import './AddClient.css';
 
 const AddClient = () => {
@@ -52,7 +52,7 @@ const AddClient = () => {
         name: clientData.name,
         address: clientData.address
       };
-      await axios.post('https://localhost:7111/clients', requestBody);
+      await apiClient.post('/clients', requestBody);
       navigate('/clients');
     } 
     catch (error) {

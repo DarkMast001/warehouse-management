@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Notification from '../../../Notification/Notification';
+import apiClient from '../../../apiClient';
 import './MeasureUnitDetails.css';
 
 const MeasureUnitDetails = () => {
@@ -35,7 +35,7 @@ const MeasureUnitDetails = () => {
     const fetchClient = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://localhost:7111/measureunits/${id}`);
+        const response = await apiClient.get(`/measureunits/${id}`);
         const formattedClient = {
           id: response.data.id,
           name: response.data.name,
@@ -76,7 +76,7 @@ const MeasureUnitDetails = () => {
       const requestBody = {
         newName: resource.name
       };
-      await axios.put(`https://localhost:7111/measureunits/${id}`, requestBody);
+      await apiClient.put(`/measureunits/${id}`, requestBody);
       navigate('/measureunits');
     } 
     catch (error) {
@@ -95,7 +95,7 @@ const MeasureUnitDetails = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`https://localhost:7111/measureunits/${id}`);
+      await apiClient.delete(`/measureunits/${id}`);
       navigate('/measureunits');
     }
     catch (error) {
@@ -111,7 +111,7 @@ const MeasureUnitDetails = () => {
 
   const handleArchive = async () => {
     try {
-      await axios.post(`https://localhost:7111/measureunits/${id}/archive`);
+      await apiClient.post(`/measureunits/${id}/archive`);
       setResource(prev => ({ ...prev, archivingState: 0 }));
       navigate("/measureunits");
     }
@@ -128,7 +128,7 @@ const MeasureUnitDetails = () => {
 
   const handleUnarchive = async () => {
     try {
-      await axios.post(`https://localhost:7111/measureunits/${id}/unarchive`);
+      await apiClient.post(`/measureunits/${id}/unarchive`);
       setResource(prev => ({ ...prev, archivingState: 1 }));
       navigate(`/measureunits/archived`);
     } catch (error) {

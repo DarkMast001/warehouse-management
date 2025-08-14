@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './ArchivedResources.css';
 
@@ -32,7 +32,7 @@ const ArchivedResources = () => {
   useEffect(() => {
     const fetchArchivedResources = async () => {
       try {
-        const response = await axios.get('https://localhost:7111/resources/archived'); 
+        const response = await apiClient.get('/resources/archived'); 
 		    const formattedClients = response.data.map(user => ({
           id: user.id,
           name: user.name,

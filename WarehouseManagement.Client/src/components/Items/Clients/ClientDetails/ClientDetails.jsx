@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Notification from '../../../Notification/Notification';
+import apiClient from '../../../apiClient';
 import './ClientDetails.css';
 
 const ClientDetails = () => {
@@ -35,7 +35,7 @@ const ClientDetails = () => {
     const fetchClient = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://localhost:7111/clients/${id}`);
+        const response = await apiClient.get(`/clients/${id}`);
         const formattedClient = {
           id: response.data.id,
           name: response.data.name,
@@ -78,7 +78,7 @@ const ClientDetails = () => {
         newName: client.name,
         newAddress: client.address
       };
-      await axios.put(`https://localhost:7111/clients/${id}`, requestBody);
+      await apiClient.put(`/clients/${id}`, requestBody);
       navigate('/clients');
     } 
     catch (error) {
@@ -97,7 +97,7 @@ const ClientDetails = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`https://localhost:7111/clients/${id}`);
+      await apiClient.delete(`/clients/${id}`);
       navigate('/clients');
     }
     catch (error) {
@@ -113,7 +113,7 @@ const ClientDetails = () => {
 
   const handleArchive = async () => {
     try {
-      await axios.post(`https://localhost:7111/clients/${id}/archive`);
+      await apiClient.post(`/clients/${id}/archive`);
       setClient(prev => ({ ...prev, archivingState: 0 }));
       navigate("/clients");
     }
@@ -130,7 +130,7 @@ const ClientDetails = () => {
 
   const handleUnarchive = async () => {
     try {
-      await axios.post(`https://localhost:7111/clients/${id}/unarchive`);
+      await apiClient.post(`/clients/${id}/unarchive`);
       setClient(prev => ({ ...prev, archivingState: 1 }));
       navigate(`/clients/archived`);
     } catch (error) {

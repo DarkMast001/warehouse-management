@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './AddResource.css';
 
@@ -52,7 +52,7 @@ const AddResource = () => {
         name: resourceData.name
       };
 
-      await axios.post('https://localhost:7111/resources', requestBody);
+      await apiClient.post('/resources', requestBody);
 
       navigate('/resources');
     } 

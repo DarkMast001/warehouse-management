@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './ReceiptsList.css';
 
@@ -55,11 +55,11 @@ const Receipts = () => {
         }
 
         const [documentsResponse, resourcesResponse, measureUnitsResponse] = await Promise.all([
-          axios.get('https://localhost:7111/receipts/documents-with-resources', {
+          apiClient.get('/receipts/documents-with-resources', {
             params: filters
           }),
-          axios.get('https://localhost:7111/resources'),
-          axios.get('https://localhost:7111/measureunits')
+          apiClient.get('/resources'),
+          apiClient.get('/measureunits')
         ]);
         
         const documentsData = documentsResponse.data;
@@ -115,7 +115,7 @@ const Receipts = () => {
         measureUnitName: selectedMeasureUnitName === "" ? null : selectedMeasureUnitName
       }
       
-      const documentsResponse = await axios.get('https://localhost:7111/receipts/documents-with-resources', { 
+      const documentsResponse = await apiClient.get('/receipts/documents-with-resources', { 
         params: filters 
       });
       
@@ -148,11 +148,11 @@ const Receipts = () => {
       }
       
       const [documentsResponse, resourcesResponse, measureUnitsResponse] = await Promise.all([
-        axios.get('https://localhost:7111/receipts/documents-with-resources', {
+        apiClient.get('/receipts/documents-with-resources', {
           params: filters
         }),
-        axios.get('https://localhost:7111/resources'),
-        axios.get('https://localhost:7111/measureunits')
+        apiClient.get('/resources'),
+        apiClient.get('/measureunits')
       ]);
       
       const documentsData = documentsResponse.data;

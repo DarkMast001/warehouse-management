@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './AddShipment.css';
 
@@ -43,10 +43,10 @@ const AddShipment = () => {
         setLoading(true);
         
         const [clientsResponse, balanceResponse, resourcesResponse, measureUnitsResponse] = await Promise.all([
-          axios.get('https://localhost:7111/clients/active'),
-          axios.get('https://localhost:7111/balance'),
-          axios.get('https://localhost:7111/resources'),
-          axios.get('https://localhost:7111/measureunits')
+          apiClient.get('/clients/active'),
+          apiClient.get('/balance'),
+          apiClient.get('/resources'),
+          apiClient.get('/measureunits')
         ]);
         
         const clientsData = clientsResponse.data;
@@ -158,7 +158,7 @@ const AddShipment = () => {
           quantity: resource.shipmentQuantity
         };
         
-        const response = await axios.post('https://localhost:7111/shipments/resources', resourceData);
+        const response = await apiClient.post('/shipments/resources', resourceData);
         return response.data;
       });
 
@@ -171,10 +171,10 @@ const AddShipment = () => {
         shipmentResourceIds: resourceIds
       };
 
-      const documentResponse = await axios.post('https://localhost:7111/shipments/documents', documentData);
+      const documentResponse = await apiClient.post('/shipments/documents', documentData);
       
       if (signDocument) {
-        await axios.post(`https://localhost:7111/shipments/documents/${documentResponse.data}/sign`);
+        await apiClient.post(`/shipments/documents/${documentResponse.data}/sign`);
       }
 
       navigate('/shipments');

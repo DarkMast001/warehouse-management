@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './ReceiptDetails.css'
 
@@ -58,9 +58,9 @@ const ReceiptDetails = () => {
         setLoading(true);
         
         const [documentResponce, resourcesResponse, measureUnitsResponse] = await Promise.all([
-          axios.get(`https://localhost:7111/receipts/documents/${id}`),
-          axios.get('https://localhost:7111/resources/active'),
-          axios.get('https://localhost:7111/measureunits/active')
+          apiClient.get(`/receipts/documents/${id}`),
+          apiClient.get('/resources/active'),
+          apiClient.get('/measureunits/active')
         ]);
         
         setDocument(documentResponce.data);
@@ -190,11 +190,11 @@ const ReceiptDetails = () => {
           quantity: resource.quantity
         };
         
-        const resourceResponse = await axios.post('https://localhost:7111/receipts/resources', resourceData);
+        const resourceResponse = await apiClient.post('/receipts/resources', resourceData);
         resourceIds.push(resourceResponse.data);
       }
       else if (resource.status === ResourceStatus.Deleted) {
-        await axios.delete(`https://localhost:7111/receipts/resources/${resource.id}`);
+        await apiClient.delete(`/receipts/resources/${resource.id}`);
       }
     }
 
@@ -204,7 +204,7 @@ const ReceiptDetails = () => {
       newReceiptResourceIds: resourceIds
     };
 
-    await axios.put(`https://localhost:7111/receipts/documents/${id}`, documentData);
+    await apiClient.put(`/receipts/documents/${id}`, documentData);
 
     navigate('/receipts');
   } 
@@ -227,7 +227,7 @@ const ReceiptDetails = () => {
   };
 
   const handleDelete = async () => {
-    await axios.delete(`https://localhost:7111/receipts/documents/${id}`);
+    await apiClient.delete(`/receipts/documents/${id}`);
     navigate('/receipts');
   }
 

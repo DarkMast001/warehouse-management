@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './MeasureUnitsList.css';
 
@@ -33,7 +33,7 @@ const MeasureUnitsList = () => {
     const fetchResources = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('https://localhost:7111/measureunits/active');
+        const response = await apiClient.get('/measureunits/active');
         const formattedResources = response.data.map(resource => ({
           id: resource.id,
           name: resource.name,

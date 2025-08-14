@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './ShipmentsList.css'
 
@@ -58,12 +58,12 @@ const ShipmentsList = () => {
         }
 
         const [documentsResponse, resourcesResponse, measureUnitsResponse, clientsResponse] = await Promise.all([
-          axios.get('https://localhost:7111/shipments/documents-with-resources', {
+          apiClient.get('/shipments/documents-with-resources', {
             params: filters
           }),
-          axios.get('https://localhost:7111/resources'),
-          axios.get('https://localhost:7111/measureunits'),
-          axios.get('https://localhost:7111/clients')
+          apiClient.get('/resources'),
+          apiClient.get('/measureunits'),
+          apiClient.get('/clients')
         ]);
         
         const documentsData = documentsResponse.data;
@@ -126,7 +126,7 @@ const ShipmentsList = () => {
         measureUnitName: selectedMeasureUnitName === "" ? null : selectedMeasureUnitName
       }
       
-      const documentsResponse = await axios.get('https://localhost:7111/shipments/documents-with-resources', { 
+      const documentsResponse = await apiClient.get('/shipments/documents-with-resources', { 
         params: filters 
       });
       
@@ -161,12 +161,12 @@ const ShipmentsList = () => {
       }
       
       const [documentsResponse, resourcesResponse, measureUnitsResponse, clientsResponse] = await Promise.all([
-        axios.get('https://localhost:7111/shipments/documents-with-resources', {
+        apiClient.get('/shipments/documents-with-resources', {
           params: filters
         }),
-        axios.get('https://localhost:7111/resources'),
-        axios.get('https://localhost:7111/measureunits'),
-        axios.get('https://localhost:7111/clients/active')
+        apiClient.get('/resources'),
+        apiClient.get('/measureunits'),
+        apiClient.get('/clients/active')
       ]);
       
       const documentsData = documentsResponse.data;

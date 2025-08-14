@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../apiClient';
 import Notification from '../../Notification/Notification';
 import './Balance.css'
 
@@ -38,13 +38,13 @@ const Balance = () => {
       try {
         setLoading(true);
 
-        const balanceResponse = await axios.get('https://localhost:7111/balance');
+        const balanceResponse = await apiClient.get('/balance');
         const balancesData = balanceResponse.data;
 
-        const resourcesResponse = await axios.get('https://localhost:7111/resources');
+        const resourcesResponse = await apiClient.get('/resources');
         const resourcesData = resourcesResponse.data;
 
-        const measureUnitsResponse = await axios.get('https://localhost:7111/measureunits');
+        const measureUnitsResponse = await apiClient.get('/measureunits');
         const measureUnitsData = measureUnitsResponse.data;
 
         setResources(resourcesData);
@@ -99,7 +99,7 @@ const Balance = () => {
         resourceId: selectedResourceId || "",
         measureUnitId: selectedMeasureUnitId || ""
       };
-      const response = await axios.post('https://localhost:7111/balance', filterData);
+      const response = await apiClient.post('/balance', filterData);
 
       const formattedBalances = await formatBalancesWithNames(response.data, resources, measureUnits);
       setBalances(formattedBalances);
@@ -114,7 +114,7 @@ const Balance = () => {
       setSelectedResourceId('');
       setSelectedMeasureUnitId('');
       
-      const response = await axios.get('https://localhost:7111/balance');
+      const response = await apiClient.get('/balance');
 
       const formattedBalances = await formatBalancesWithNames(response.data, resources, measureUnits);
       setBalances(formattedBalances);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './AddReceipt.css';
 
@@ -49,8 +49,8 @@ const AddReceipt = () => {
         setLoading(true);
         
         const [resourcesResponse, measureUnitsResponse] = await Promise.all([
-          axios.get('https://localhost:7111/resources/active'),
-          axios.get('https://localhost:7111/measureunits/active')
+          apiClient.get('/resources/active'),
+          apiClient.get('/measureunits/active')
         ]);
         
         setResources(resourcesResponse.data);
@@ -161,7 +161,7 @@ const AddReceipt = () => {
         quantity: resource.quantity
       };
       
-      const resourceResponse = await axios.post('https://localhost:7111/receipts/resources', resourceData);
+      const resourceResponse = await apiClient.post('/receipts/resources', resourceData);
       resourceIds.push(resourceResponse.data);
     }
 
@@ -171,7 +171,7 @@ const AddReceipt = () => {
       receiptResourceIds: resourceIds
     };
 
-    await axios.post('https://localhost:7111/receipts/documents', documentData);
+    await apiClient.post('/receipts/documents', documentData);
 
     navigate('/receipts');
   } 

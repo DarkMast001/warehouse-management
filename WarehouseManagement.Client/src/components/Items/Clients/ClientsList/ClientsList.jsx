@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import Notification from '../../../Notification/Notification';
+import apiClient from '../../../apiClient';
 import './ClientsList.css';
 
 const ClientsList = () => {
@@ -33,7 +33,7 @@ const ClientsList = () => {
     const fetchClients = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('https://localhost:7111/clients/active');
+        const response = await apiClient.get('/clients/active');
         const formattedClients = response.data.map(user => ({
           id: user.id,
           name: user.name,

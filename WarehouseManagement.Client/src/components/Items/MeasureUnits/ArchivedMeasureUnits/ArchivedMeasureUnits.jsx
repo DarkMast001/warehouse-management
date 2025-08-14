@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import Notification from '../../../Notification/Notification';
+import apiClient from '../../../apiClient';
 import './ArchivedMeasureUnits.css';
 
 const ArchivedMeasureUnits = () => {
@@ -33,7 +33,7 @@ const ArchivedMeasureUnits = () => {
     const fetchArchivedResources = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('https://localhost:7111/measureunits/archived'); 
+        const response = await apiClient.get('/measureunits/archived'); 
 		    const formattedClients = response.data.map(user => ({
           id: user.id,
           name: user.name,

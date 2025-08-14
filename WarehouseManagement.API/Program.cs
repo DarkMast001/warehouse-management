@@ -34,7 +34,7 @@ public class Program
 
         app.UseCors("AllowFrontend");
 
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
         app.MapControllers();
 
         using (var scope = app.Services.CreateScope())

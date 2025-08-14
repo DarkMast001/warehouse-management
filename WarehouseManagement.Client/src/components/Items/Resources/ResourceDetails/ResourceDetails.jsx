@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../../apiClient';
 import Notification from '../../../Notification/Notification';
 import './ResourceDetails.css';
 
@@ -34,7 +34,7 @@ const ResourceDetails = () => {
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const response = await axios.get(`https://localhost:7111/resources/${id}`);
+        const response = await apiClient.get(`/resources/${id}`);
         const formattedClient = {
           id: response.data.id,
           name: response.data.name,
@@ -77,7 +77,7 @@ const ResourceDetails = () => {
         newName: resource.name
       };
 
-      await axios.put(`https://localhost:7111/resources/${id}`, requestBody);
+      await apiClient.put(`/resources/${id}`, requestBody);
 
       navigate('/resources');
     } 
@@ -98,7 +98,7 @@ const ResourceDetails = () => {
   const handleDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`https://localhost:7111/resources/${id}`);
+      await apiClient.delete(`/resources/${id}`);
       navigate('/resources');
     }
     catch (error) {
@@ -118,7 +118,7 @@ const ResourceDetails = () => {
   const handleArchive = async () => {
     try {
       setLoading(true);
-      await axios.post(`https://localhost:7111/resources/${id}/archive`);
+      await apiClient.post(`/resources/${id}/archive`);
       setResource(prev => ({ ...prev, archivingState: 0 }));
       navigate("/resources");
     }
@@ -138,7 +138,7 @@ const ResourceDetails = () => {
 
   const handleUnarchive = async () => {
     try {
-      await axios.post(`https://localhost:7111/resources/${id}/unarchive`);
+      await apiClient.post(`/resources/${id}/unarchive`);
       setResource(prev => ({ ...prev, archivingState: 1 }));
       navigate(`/resources/archived`);
     } 
